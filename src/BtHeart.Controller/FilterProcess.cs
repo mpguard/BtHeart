@@ -46,6 +46,9 @@ namespace BtHeart.Controller
         }
     }
 
+    /// <summary>
+    /// 中值滤波
+    /// </summary>
     public class MedianFilterProcess:IProcess
     {
         private OnlineMedianFilter MedianFilter;
@@ -70,24 +73,23 @@ namespace BtHeart.Controller
         }
     }
 
-    public class FirFilterProcess:IProcess
+    /// <summary>
+    /// 低通滤波
+    /// </summary>
+    public class LowFirFilterProcess:IProcess
     {
         private OnlineFirFilter LowFirFilter;
-        private OnlineFirFilter HighFirFilter;
         public bool Enabled { get; set; }
 
-        public FirFilterProcess()
+        public LowFirFilterProcess()
         {
             var lowCoefficient = FirCoefficients.LowPass(500, 37, 17);
             LowFirFilter = new OnlineFirFilter(lowCoefficient);
-            var highCoefficient = FirCoefficients.HighPass(500, 1, 17);
-            HighFirFilter = new OnlineFirFilter(highCoefficient);
         }
 
         public void Init()
         {
             LowFirFilter.Reset();
-            HighFirFilter.Reset();
         }
 
         public double Process(double rawData)
@@ -95,10 +97,37 @@ namespace BtHeart.Controller
             if (!Enabled) 
                 return rawData;
             double lowecg = LowFirFilter.ProcessSample(rawData);
-            double highecg = HighFirFilter.ProcessSample(lowecg);
             return lowecg;
         }
-    }    
+    }
+
+    /// <summary>
+    /// 带通滤波
+    /// </summary>
+    public class BandFirFilterProcess : IProcess 
+    {
+        private OnlineFirFilter BandFirFilter;
+        public bool Enabled { get; set; }
+
+        public BandFirFilterProcess()
+        {
+            var bandCoefficient = FirCoefficients.BandPass(500, 1,37, 17);
+            BandFirFilter = new OnlineFirFilter(bandCoefficient);
+        }
+
+        public void Init()
+        {
+            BandFirFilter.Reset();
+        }
+
+        public double Process(double rawData)
+        {
+            if (!Enabled) 
+                return rawData;
+            double bandecg = BandFirFilter.ProcessSample(rawData);
+            return bandecg;
+        }
+    }
 
     public class MyFirFilterProcess:IProcess
     {

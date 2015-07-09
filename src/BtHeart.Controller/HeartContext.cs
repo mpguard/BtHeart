@@ -41,7 +41,8 @@ namespace BtHeart.Controller
 
             AvgFilter = new AvgFilterProcess();
             //FirFilter = new MyFirFilterProcess();
-            FirFilter = new FirFilterProcess();
+            //FirFilter = new LowFirFilterProcess();
+            FirFilter = new BandFirFilterProcess();
             MedianFilter = new MedianFilterProcess();
 
             Processes = new List<IProcess>()
