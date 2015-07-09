@@ -1,0 +1,9 @@
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Debug\BtHeart.UI.Properties.Resources.resources
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Debug\BtHeart.UI.csproj.GenerateResource.Cache
+F:\Medikz\Project\移动心电开发\Code\bin\BtHeart.UI.exe
+F:\Medikz\Project\移动心电开发\Code\bin\BtHeart.UI.pdb
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Debug\BtHeart.UI.Main.resources
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Debug\BtHeart.UI.exe
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Debug\BtHeart.UI.pdb
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Debug\BtHeart.UI.csprojResolveAssemblyReference.cache
+F:\Medikz\Project\移动心电开发\Code\bin\BtHeart.UI.exe.config

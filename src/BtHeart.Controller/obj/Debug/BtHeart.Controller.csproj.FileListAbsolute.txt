@@ -1,0 +1,4 @@
+F:\Medikz\Project\移动心电开发\Code\bin\BtHeart.Controller.dll
+F:\Medikz\Project\移动心电开发\Code\bin\BtHeart.Controller.pdb
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.Controller\obj\Debug\BtHeart.Controller.dll
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.Controller\obj\Debug\BtHeart.Controller.pdb
