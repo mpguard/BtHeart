@@ -24,6 +24,7 @@ namespace BtHeart.UI
             HeartContext = new HeartContext();
             HeartContext.Processed += HeartContext_Processed;
             HeartContext.ComReceived += HeartContext_ComReceived;
+            HeartContext.RateAnalyzed += HeartContext_RateAnalyzed;
 
             ChartHeart.Series.Clear();
             Series s1 = ChartHeart.Series.Add("heart");
@@ -54,7 +55,7 @@ namespace BtHeart.UI
                     for(int i = 0; i < 12; i++)
                         ChartHeart.Series[0].Points.RemoveAt(0);
                 }
-                ChartHeart.ResetAutoValues();
+                //ChartHeart.ResetAutoValues();
                 ChartHeart.Invalidate();
             }));
         }
@@ -78,9 +79,20 @@ namespace BtHeart.UI
             }));
         }
 
+        private void HeartContext_RateAnalyzed(int? rate)
+        {
+            if (!this.IsHandleCreated)
+                return;
+            this.BeginInvoke(new Action(() =>
+            {
+                lblRate.Text = rate.HasValue ? rate.Value.ToString() : "...";
+            }));
+        }
+
         private void Main_Load(object sender, EventArgs e)
         {
             LoadInfo();
+            LoadChartInfo();
         }
 
         #region 串口操作
@@ -270,6 +282,39 @@ namespace BtHeart.UI
                 string path = fileDialog.FileName;
                 HeartContext.SaveTxt(path);
             }
+        }
+
+        private void LoadChartInfo()
+        {
+            double f = 500;
+            ChartHeart.ChartAreas[0].AxisX.MajorGrid.Enabled = true;
+            ChartHeart.ChartAreas[0].AxisX.MinorGrid.Enabled = true;
+            ChartHeart.ChartAreas[0].AxisX.MajorGrid.LineColor = Color.Gray;
+            ChartHeart.ChartAreas[0].AxisX.MinorGrid.LineColor = Color.LightGray;
+            ChartHeart.ChartAreas[0].AxisY.MajorGrid.Enabled = true;
+            ChartHeart.ChartAreas[0].AxisY.MinorGrid.Enabled = true;
+            ChartHeart.ChartAreas[0].AxisY.MajorGrid.LineColor = Color.Gray;
+            ChartHeart.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.LightGray;
+
+            ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
+            ChartHeart.ChartAreas[0].AxisX.Maximum = 2*f; // 2s
+            ChartHeart.ChartAreas[0].AxisX.IsStartedFromZero = true;
+            ChartHeart.ChartAreas[0].AxisY.Minimum = -2;
+            ChartHeart.ChartAreas[0].AxisY.Maximum = 2; // -2~2mv;
+            ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
+
+            ChartHeart.ChartAreas[0].AxisX.IsLabelAutoFit = true;
+            ChartHeart.ChartAreas[0].AxisY.IsLabelAutoFit = true;
+
+            ChartHeart.ChartAreas[0].AxisX.MajorTickMark.Interval = 0.2 * f;
+            ChartHeart.ChartAreas[0].AxisX.MinorTickMark.Interval = 0.04 * f;
+            ChartHeart.ChartAreas[0].AxisY.MajorTickMark.Interval = 0.5;
+            ChartHeart.ChartAreas[0].AxisY.MinorTickMark.Interval = 0.1;
+
+            ChartHeart.ChartAreas[0].AxisX.MajorGrid.Interval = 0.2*f;
+            ChartHeart.ChartAreas[0].AxisX.MinorGrid.Interval = 0.04*f;
+            ChartHeart.ChartAreas[0].AxisY.MajorGrid.Interval = 0.5;
+            ChartHeart.ChartAreas[0].AxisY.MinorGrid.Interval = 0.1;
         }
     }
 }

@@ -52,29 +52,32 @@ namespace BtHeart.Controller
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {
             LoadFile();
-            //while(!worker.CancellationPending)
-            //{
-            //    for(int i = 0; i < fileBuffer.Count-4;i+=4)
-            //    {
-            //        byte[] buffer = new byte[4];
-            //        buffer[0] = fileBuffer[i];
-            //        buffer[1] = fileBuffer[i+1];
-            //        buffer[2] = fileBuffer[i+2];
-            //        buffer[3] = fileBuffer[i+3];
-            //        OnReceive(buffer);
-            //        Thread.Sleep(2);
-            //    }
-            //}
-            for (int i = 0; i < fileBuffer.Count - 4; i += 4)
+            while (!worker.CancellationPending)
             {
-                byte[] buffer = new byte[4];
-                buffer[0] = fileBuffer[i];
-                buffer[1] = fileBuffer[i + 1];
-                buffer[2] = fileBuffer[i + 2];
-                buffer[3] = fileBuffer[i + 3];
-                OnReceive(buffer);
-                Thread.Sleep(2);
+                for (int i = 0; i < fileBuffer.Count - 4; i += 4)
+                {
+                    byte[] buffer = new byte[4];
+                    buffer[0] = fileBuffer[i];
+                    buffer[1] = fileBuffer[i + 1];
+                    buffer[2] = fileBuffer[i + 2];
+                    buffer[3] = fileBuffer[i + 3];
+                    OnReceive(buffer);
+                    Thread.Sleep(2);
+                }
             }
+            //LoadFile();
+            //for (int i = 0; i < fileBuffer.Count - 4; i += 4)
+            //{
+            //    if (worker.CancellationPending)
+            //        break;
+            //    byte[] buffer = new byte[4];
+            //    buffer[0] = fileBuffer[i];
+            //    buffer[1] = fileBuffer[i + 1];
+            //    buffer[2] = fileBuffer[i + 2];
+            //    buffer[3] = fileBuffer[i + 3];
+            //    OnReceive(buffer);
+            //    Thread.Sleep(2);
+            //}
         }
 
         private void OnReceive(byte[] buffer)

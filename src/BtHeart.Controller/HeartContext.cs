@@ -11,12 +11,22 @@ namespace BtHeart.Controller
 {
     public class HeartContext
     {
+        public const int F = 500; // 采样频率
+        public const int JumpSec = 1; // 初始跳过3秒
+        public const int ThesoldSec = 5; // 初始阈值需5秒确定
+        public const int AdjustSec = 2;// 动态调整阈值，心率刷新每2秒
+        public const double RefractorySec = 0.2; // 跳过200ms不应期检测
+        public const double Th = 1.5; // 阈值比例系数
+
         private IPump Pump;
         private IAnalyze Analyze;
         private List<IProcess> Processes;
         private IProcess AvgFilter;
         private IProcess FirFilter;
         private IProcess MedianFilter;
+        private IProcess BandStopFilter;
+
+        private HeartRate Rate;
 
         private ConcurrentQueue<double> analyzedQueue = new ConcurrentQueue<double>();
         private ConcurrentQueue<double> ecgQueue = new ConcurrentQueue<double>();
@@ -25,6 +35,7 @@ namespace BtHeart.Controller
 
         public event Action<EcgPacket> Processed;
         public event Action<byte[]> ComReceived;
+        public event Action<int?> RateAnalyzed;
 
         public HeartContext()
         {
@@ -39,16 +50,21 @@ namespace BtHeart.Controller
             Analyze = new ComDataAnalyze(Pump);
             Analyze.Analyzed += Analyze_Analyzed;
 
+            Rate = new DifferenceHeartRate(this);
+            Rate.RateAnalyzed += Rate_RateAnalyzed;
+
             AvgFilter = new AvgFilterProcess();
             //FirFilter = new MyFirFilterProcess();
             //FirFilter = new LowFirFilterProcess();
-            FirFilter = new BandFirFilterProcess();
+            FirFilter = new BandPassFirFilterProcess();
+            BandStopFilter = new BandStopFirFilterProcess();
             MedianFilter = new MedianFilterProcess();
 
             Processes = new List<IProcess>()
             {
                 AvgFilter,
                 FirFilter,
+                //BandStopFilter,
                 MedianFilter,
             };
         }
@@ -89,12 +105,18 @@ namespace BtHeart.Controller
             return data;
         }
 
+        private void Rate_RateAnalyzed(int? rate)
+        {
+            OnRateAnalyze(rate);
+        }
+
         public void Start()
         {
             Processes.ForEach(p => p.Init());
 
             Pump.Open();
             Analyze.Start();
+            Rate.Start();
 
             if (!worker.IsBusy)
                 worker.RunWorkerAsync();
@@ -104,6 +126,7 @@ namespace BtHeart.Controller
         {
             Pump.Close();
             Analyze.Stop();
+            Rate.Stop();
 
             if (worker.IsBusy)
                 worker.CancelAsync();
@@ -121,6 +144,12 @@ namespace BtHeart.Controller
         {
             if (ComReceived != null)
                 ComReceived(buffer);
+        }
+
+        private void OnRateAnalyze(int? rate)
+        {
+            if (RateAnalyzed != null)
+                RateAnalyzed(rate);
         }
 
         public void SaveTxt(string filePath)

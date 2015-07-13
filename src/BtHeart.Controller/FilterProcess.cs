@@ -57,7 +57,7 @@ namespace BtHeart.Controller
 
         public MedianFilterProcess()
         {
-            MedianFilter = new OnlineMedianFilter(400);
+            MedianFilter = new OnlineMedianFilter(425);
         }
 
         public void Init()
@@ -83,7 +83,7 @@ namespace BtHeart.Controller
 
         public LowFirFilterProcess()
         {
-            var lowCoefficient = FirCoefficients.LowPass(500, 37, 17);
+            var lowCoefficient = FirCoefficients.LowPass(HeartContext.F, 37, 40);
             LowFirFilter = new OnlineFirFilter(lowCoefficient);
         }
 
@@ -104,14 +104,42 @@ namespace BtHeart.Controller
     /// <summary>
     /// 带通滤波
     /// </summary>
-    public class BandFirFilterProcess : IProcess 
+    public class BandPassFirFilterProcess : IProcess 
     {
         private OnlineFirFilter BandFirFilter;
         public bool Enabled { get; set; }
 
-        public BandFirFilterProcess()
+        public BandPassFirFilterProcess()
         {
-            var bandCoefficient = FirCoefficients.BandPass(500, 1,37, 17);
+            var bandCoefficient = FirCoefficients.BandPass(HeartContext.F, 2, 37, 50);
+            BandFirFilter = new OnlineFirFilter(bandCoefficient);
+        }
+
+        public void Init()
+        {
+            BandFirFilter.Reset();
+        }
+
+        public double Process(double rawData)
+        {
+            if (!Enabled) 
+                return rawData;
+            double bandecg = BandFirFilter.ProcessSample(rawData);
+            return bandecg;
+        }
+    }
+
+    /// <summary>
+    /// 带阻滤波器
+    /// </summary>
+    public class BandStopFirFilterProcess:IProcess
+    {
+        private OnlineFirFilter BandFirFilter;
+        public bool Enabled { get; set; }
+
+        public BandStopFirFilterProcess()
+        {
+            var bandCoefficient = FirCoefficients.BandStop(HeartContext.F, 45, 50, 40);
             BandFirFilter = new OnlineFirFilter(bandCoefficient);
         }
 

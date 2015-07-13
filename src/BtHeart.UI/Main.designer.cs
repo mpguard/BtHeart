@@ -61,6 +61,7 @@
             this.btnClearSend = new System.Windows.Forms.Button();
             this.btnRefreshPort = new System.Windows.Forms.Button();
             this.tpBLE数据 = new System.Windows.Forms.TabPage();
+            this.btn滤波保存 = new System.Windows.Forms.Button();
             this.btn保存 = new System.Windows.Forms.Button();
             this.btn原始数据解析 = new System.Windows.Forms.Button();
             this.btn滤波解析 = new System.Windows.Forms.Button();
@@ -70,7 +71,8 @@
             this.tb心电图 = new System.Windows.Forms.TabPage();
             this.ChartHeart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chkFilter = new System.Windows.Forms.CheckBox();
-            this.btn滤波保存 = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.lblRate = new System.Windows.Forms.Label();
             this.gbSet.SuspendLayout();
             this.tp蓝牙原始数据.SuspendLayout();
             this.gbReceive.SuspendLayout();
@@ -423,6 +425,17 @@
             this.tpBLE数据.Text = "串口数据";
             this.tpBLE数据.UseVisualStyleBackColor = true;
             // 
+            // btn滤波保存
+            // 
+            this.btn滤波保存.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn滤波保存.Location = new System.Drawing.Point(536, 604);
+            this.btn滤波保存.Name = "btn滤波保存";
+            this.btn滤波保存.Size = new System.Drawing.Size(97, 29);
+            this.btn滤波保存.TabIndex = 7;
+            this.btn滤波保存.Text = "滤波数据保存";
+            this.btn滤波保存.UseVisualStyleBackColor = true;
+            this.btn滤波保存.Click += new System.EventHandler(this.btn滤波保存_Click);
+            // 
             // btn保存
             // 
             this.btn保存.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -524,22 +537,33 @@
             this.chkFilter.UseVisualStyleBackColor = true;
             this.chkFilter.CheckedChanged += new System.EventHandler(this.chbMean_CheckedChanged);
             // 
-            // btn滤波保存
+            // label8
             // 
-            this.btn滤波保存.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btn滤波保存.Location = new System.Drawing.Point(536, 604);
-            this.btn滤波保存.Name = "btn滤波保存";
-            this.btn滤波保存.Size = new System.Drawing.Size(97, 29);
-            this.btn滤波保存.TabIndex = 7;
-            this.btn滤波保存.Text = "滤波数据保存";
-            this.btn滤波保存.UseVisualStyleBackColor = true;
-            this.btn滤波保存.Click += new System.EventHandler(this.btn滤波保存_Click);
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.Location = new System.Drawing.Point(24, 494);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(56, 16);
+            this.label8.TabIndex = 13;
+            this.label8.Text = "心率：";
+            // 
+            // lblRate
+            // 
+            this.lblRate.AutoSize = true;
+            this.lblRate.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblRate.Location = new System.Drawing.Point(72, 494);
+            this.lblRate.Name = "lblRate";
+            this.lblRate.Size = new System.Drawing.Size(32, 16);
+            this.lblRate.TabIndex = 14;
+            this.lblRate.Text = "...";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 681);
+            this.Controls.Add(this.lblRate);
+            this.Controls.Add(this.label8);
             this.Controls.Add(this.btnRefreshPort);
             this.Controls.Add(this.chkFilter);
             this.Controls.Add(this.gbSet3);
@@ -619,6 +643,8 @@
         private System.Windows.Forms.Button btn原始数据解析;
         private System.Windows.Forms.Button btn保存;
         private System.Windows.Forms.Button btn滤波保存;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label lblRate;
     }
 }
 
