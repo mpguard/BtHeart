@@ -15,8 +15,8 @@ namespace BtHeart.Controller
         public const int JumpSec = 1; // 初始跳过3秒
         public const int ThesoldSec = 5; // 初始阈值需5秒确定
         public const int AdjustSec = 2;// 动态调整阈值，心率刷新每2秒
-        public const double RefractorySec = 0.2; // 跳过200ms不应期检测
-        public const double Th = 1.5; // 阈值比例系数
+        public const double RefractorySec = 0.1; // 跳过200ms不应期检测
+        public const double Th = 8; // 阈值比例系数
 
         private IPump Pump;
         private IAnalyze Analyze;
@@ -50,7 +50,7 @@ namespace BtHeart.Controller
             Analyze = new ComDataAnalyze(Pump);
             Analyze.Analyzed += Analyze_Analyzed;
 
-            Rate = new DifferenceHeartRate(this);
+            Rate = new DifferenceHeartRateEx(this);
             Rate.RateAnalyzed += Rate_RateAnalyzed;
 
             AvgFilter = new AvgFilterProcess();
