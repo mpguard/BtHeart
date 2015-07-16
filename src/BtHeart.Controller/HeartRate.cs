@@ -129,9 +129,11 @@ namespace BtHeart.Controller
                     InitThesold();
                     break;
                 case RateState.Initialized:
-                    CalcRate();
-                    //CheckRate();
-                    //CheckError();
+                    if (CalcRate())
+                    {
+                        CheckRate();
+                        CheckError();
+                    }
                     break;
                 case RateState.Error:
                     Clear();
@@ -184,7 +186,7 @@ namespace BtHeart.Controller
         }
 
         // 计算心率
-        protected virtual void CalcRate()
+        protected virtual bool CalcRate()
         {
             int allSize = HeartContext.AdjustSec*HeartContext.F;
             if (ecgQueue.Count >= allSize)
@@ -236,9 +238,11 @@ namespace BtHeart.Controller
                 diffList.Clear();
                 ecgList.Clear();
                 ecgQueue.Clear();
+                return true;
             }
 
             State = RateState.Initialized;
+            return false;
         }
 
         // 检验心率计算
@@ -263,14 +267,10 @@ namespace BtHeart.Controller
 
                     if (NewRate < 30 || NewRate > 250) // 心率超过范围
                     {
-                        NewRate = null;
                         ErrorCnt++;
                     }
-                    else
-                    {
-                        LastRate = NewRate.Value; // 更新旧心率值
-                    }
                 }
+                LastRate = NewRate.Value; // 更新旧心率值
             }
         }
 
@@ -326,7 +326,7 @@ namespace BtHeart.Controller
             State = RateState.Initialized;
         }
 
-        protected override void CalcRate()
+        protected override bool CalcRate()
         {
             int allSize = HeartContext.AdjustSec * HeartContext.F;
             if (ecgQueue.Count >= allSize)
@@ -383,9 +383,12 @@ namespace BtHeart.Controller
                 diffList.Clear();
                 ecgList.Clear();
                 ecgQueue.Clear();
+
+                return true;
             }
 
             State = RateState.Initialized;
+            return false;
         }
     }
 
