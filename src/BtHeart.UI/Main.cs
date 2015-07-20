@@ -17,6 +17,17 @@ namespace BtHeart.UI
     {
         private HeartContext HeartContext;
 
+        #region 心电图纸定义
+        // 采样点间距
+        private static double delta = 0.002;
+        // 横向代表时间，大格间距,0.2s
+        private static double longSide = 0.2;
+        // 小格间距,0.04s
+        private static double shortSide = 0.04;
+        private static double x = 0.0;
+        private static int pIndex = 0;
+        #endregion
+
         public Main()
         {
             InitializeComponent();
@@ -25,11 +36,6 @@ namespace BtHeart.UI
             HeartContext.Processed += HeartContext_Processed;
             HeartContext.ComReceived += HeartContext_ComReceived;
             HeartContext.RateAnalyzed += HeartContext_RateAnalyzed;
-
-            ChartHeart.Series.Clear();
-            Series s1 = ChartHeart.Series.Add("heart");
-            s1.ChartType = SeriesChartType.Line;
-            s1.Color = Color.Red;
         }
 
         private void Config()
@@ -48,15 +54,10 @@ namespace BtHeart.UI
                 return;
             this.BeginInvoke(new Action(() =>
             {
-                foreach(var data in ecgPacket.Data)
-                    ChartHeart.Series[0].Points.AddY(data);
-                if(ChartHeart.Series[0].Points.Count >= 1000)
-                {
-                    for(int i = 0; i < 12; i++)
-                        ChartHeart.Series[0].Points.RemoveAt(0);
-                }
-                //ChartHeart.ResetAutoValues();
-                ChartHeart.Invalidate();
+                if (rbRedraw.Checked)
+                    Redraw(ecgPacket);
+                else if (rbFeedPaper.Checked)
+                    FeedPaper(ecgPacket);
             }));
         }
 
@@ -91,12 +92,12 @@ namespace BtHeart.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
-            LoadInfo();
-            LoadChartInfo();
+            InitInfo();
+            InitChartInfo();
         }
 
         #region 串口操作
-        private void LoadInfo()
+        private void InitInfo()
         {
             cmbPort.DataSource = SerialPort.GetPortNames();
             cmbPort.SelectedItem = ConfigurationManager.AppSettings["portName"];
@@ -115,7 +116,6 @@ namespace BtHeart.UI
             cmbEncoding.DataSource = new String[] { Encoding.Default.WebName, Encoding.ASCII.WebName, Encoding.UTF8.WebName };
             cmbEncoding.SelectedItem = Encoding.Default.WebName;
             chkHEXShow.Checked = true;
-
             chkFilter.Checked = true;
         }
 
@@ -284,9 +284,14 @@ namespace BtHeart.UI
             }
         }
 
-        private void LoadChartInfo()
+        #region Chart样式定义和操作
+        private void InitChartInfo()
         {
-            double f = 500;
+            ChartHeart.Series.Clear();
+            Series s1 = ChartHeart.Series.Add("heart");
+            s1.ChartType = SeriesChartType.Line;
+            s1.Color = Color.Red;
+
             ChartHeart.ChartAreas[0].AxisX.MajorGrid.Enabled = true;
             ChartHeart.ChartAreas[0].AxisX.MinorGrid.Enabled = true;
             ChartHeart.ChartAreas[0].AxisX.MajorGrid.LineColor = Color.Gray;
@@ -297,24 +302,73 @@ namespace BtHeart.UI
             ChartHeart.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.LightGray;
 
             ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
-            ChartHeart.ChartAreas[0].AxisX.Maximum = 2*f; // 2s
+            ChartHeart.ChartAreas[0].AxisX.Maximum = 5; // 5s
             ChartHeart.ChartAreas[0].AxisX.IsStartedFromZero = true;
-            ChartHeart.ChartAreas[0].AxisY.Minimum = -2;
-            ChartHeart.ChartAreas[0].AxisY.Maximum = 2; // -2~2mv;
-            ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
+            //ChartHeart.ChartAreas[0].AxisY.Minimum = -5;
+            //ChartHeart.ChartAreas[0].AxisY.Maximum = 5; // -5~5mv;
+            //ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
 
             ChartHeart.ChartAreas[0].AxisX.IsLabelAutoFit = true;
             ChartHeart.ChartAreas[0].AxisY.IsLabelAutoFit = true;
 
-            ChartHeart.ChartAreas[0].AxisX.MajorTickMark.Interval = 0.2 * f;
-            ChartHeart.ChartAreas[0].AxisX.MinorTickMark.Interval = 0.04 * f;
-            ChartHeart.ChartAreas[0].AxisY.MajorTickMark.Interval = 0.5;
-            ChartHeart.ChartAreas[0].AxisY.MinorTickMark.Interval = 0.1;
+            ChartHeart.ChartAreas[0].AxisX.MajorTickMark.Interval = 0.2;
+            ChartHeart.ChartAreas[0].AxisX.MinorTickMark.Interval = 0.04;
+            //ChartHeart.ChartAreas[0].AxisY.MajorTickMark.Interval = longSide;
+            //ChartHeart.ChartAreas[0].AxisY.MinorTickMark.Interval = shortSide;
 
-            ChartHeart.ChartAreas[0].AxisX.MajorGrid.Interval = 0.2*f;
-            ChartHeart.ChartAreas[0].AxisX.MinorGrid.Interval = 0.04*f;
-            ChartHeart.ChartAreas[0].AxisY.MajorGrid.Interval = 0.5;
-            ChartHeart.ChartAreas[0].AxisY.MinorGrid.Interval = 0.1;
+            ChartHeart.ChartAreas[0].AxisX.MajorGrid.Interval = 0.2;
+            ChartHeart.ChartAreas[0].AxisX.MinorGrid.Interval = 0.04;
+            //ChartHeart.ChartAreas[0].AxisY.MajorGrid.Interval = 0.5;
+            //ChartHeart.ChartAreas[0].AxisY.MinorGrid.Interval = 0.1;
+
+            rbRedraw.Checked = true;
         }
+
+        private void Redraw(EcgPacket ecgPacket)
+        {
+            foreach (var data in ecgPacket.Data)
+            {
+                double y = shortSide * (data / 1000) / 0.1;
+                if (ChartHeart.Series[0].Points.Count < 2500)
+                {
+                    ChartHeart.Series[0].Points.AddXY(x, y);
+                    x += delta;
+                }
+                else
+                {
+                    ChartHeart.Series[0].Points[pIndex++].YValues[0] = y;
+                    pIndex = pIndex >= 2500 ? 0 : pIndex;
+                }
+            }
+            ChartHeart.Invalidate();
+        }
+
+        private void FeedPaper(EcgPacket ecgPacket)
+        {
+            foreach (var data in ecgPacket.Data)
+            {
+                double y = shortSide * (data / 1000) / 0.1;
+                ChartHeart.Series[0].Points.AddXY(x, y);
+                x += delta;
+            }
+            if (ChartHeart.Series[0].Points.Count >= 2500)
+            {
+                for (int i = 0; i < 12; i++)
+                    ChartHeart.Series[0].Points.RemoveAt(0);
+                ChartHeart.ChartAreas[0].AxisX.Minimum += 12 * delta;
+                ChartHeart.ChartAreas[0].AxisX.Maximum = 5 + ChartHeart.ChartAreas[0].AxisX.Minimum; // 5s
+            }
+            ChartHeart.Invalidate();
+        }
+
+        private void rbRedraw_CheckedChanged(object sender, EventArgs e)
+        {
+            ChartHeart.Series[0].Points.Clear();
+            ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
+            ChartHeart.ChartAreas[0].AxisX.Maximum = 5; // 5s
+            x = 0;        
+        }
+        #endregion
+
     }
 }

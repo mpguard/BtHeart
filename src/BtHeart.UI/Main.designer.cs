@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.gbSet = new System.Windows.Forms.GroupBox();
             this.cmbParity = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -73,6 +73,9 @@
             this.chkFilter = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
             this.lblRate = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.rbRedraw = new System.Windows.Forms.RadioButton();
+            this.rbFeedPaper = new System.Windows.Forms.RadioButton();
             this.gbSet.SuspendLayout();
             this.tp蓝牙原始数据.SuspendLayout();
             this.gbReceive.SuspendLayout();
@@ -84,6 +87,7 @@
             this.tabControl1.SuspendLayout();
             this.tb心电图.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChartHeart)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // gbSet
@@ -517,8 +521,8 @@
             // 
             // ChartHeart
             // 
-            chartArea1.Name = "ChartArea1";
-            this.ChartHeart.ChartAreas.Add(chartArea1);
+            chartArea3.Name = "ChartArea1";
+            this.ChartHeart.ChartAreas.Add(chartArea3);
             this.ChartHeart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChartHeart.Location = new System.Drawing.Point(3, 3);
             this.ChartHeart.Name = "ChartHeart";
@@ -529,7 +533,7 @@
             // 
             this.chkFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkFilter.AutoSize = true;
-            this.chkFilter.Location = new System.Drawing.Point(26, 455);
+            this.chkFilter.Location = new System.Drawing.Point(26, 559);
             this.chkFilter.Name = "chkFilter";
             this.chkFilter.Size = new System.Drawing.Size(48, 16);
             this.chkFilter.TabIndex = 1;
@@ -541,7 +545,7 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(24, 494);
+            this.label8.Location = new System.Drawing.Point(23, 595);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(56, 16);
             this.label8.TabIndex = 13;
@@ -551,17 +555,54 @@
             // 
             this.lblRate.AutoSize = true;
             this.lblRate.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblRate.Location = new System.Drawing.Point(72, 494);
+            this.lblRate.Location = new System.Drawing.Point(71, 595);
             this.lblRate.Name = "lblRate";
             this.lblRate.Size = new System.Drawing.Size(32, 16);
             this.lblRate.TabIndex = 14;
             this.lblRate.Text = "...";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox1.Controls.Add(this.rbFeedPaper);
+            this.groupBox1.Controls.Add(this.rbRedraw);
+            this.groupBox1.Location = new System.Drawing.Point(12, 443);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(157, 78);
+            this.groupBox1.TabIndex = 15;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "走纸方式";
+            // 
+            // rbRedraw
+            // 
+            this.rbRedraw.AutoSize = true;
+            this.rbRedraw.Location = new System.Drawing.Point(26, 21);
+            this.rbRedraw.Name = "rbRedraw";
+            this.rbRedraw.Size = new System.Drawing.Size(47, 16);
+            this.rbRedraw.TabIndex = 0;
+            this.rbRedraw.TabStop = true;
+            this.rbRedraw.Text = "重绘";
+            this.rbRedraw.UseVisualStyleBackColor = true;
+            this.rbRedraw.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
+            // 
+            // rbFeedPaper
+            // 
+            this.rbFeedPaper.AutoSize = true;
+            this.rbFeedPaper.Location = new System.Drawing.Point(26, 43);
+            this.rbFeedPaper.Name = "rbFeedPaper";
+            this.rbFeedPaper.Size = new System.Drawing.Size(47, 16);
+            this.rbFeedPaper.TabIndex = 1;
+            this.rbFeedPaper.TabStop = true;
+            this.rbFeedPaper.Text = "走纸";
+            this.rbFeedPaper.UseVisualStyleBackColor = true;
+            this.rbFeedPaper.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 681);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lblRate);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.btnRefreshPort);
@@ -594,6 +635,8 @@
             this.tabControl1.ResumeLayout(false);
             this.tb心电图.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ChartHeart)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -645,6 +688,9 @@
         private System.Windows.Forms.Button btn滤波保存;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lblRate;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton rbFeedPaper;
+        private System.Windows.Forms.RadioButton rbRedraw;
     }
 }
 

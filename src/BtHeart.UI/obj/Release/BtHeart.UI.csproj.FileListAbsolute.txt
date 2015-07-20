@@ -1,0 +1,16 @@
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\BtHeart.UI.exe.config
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\BtHeart.UI.exe
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\BtHeart.UI.pdb
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\BtHeart.Controller.dll
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\LINQtoCSV.dll
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\MathNet.Filtering.dll
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\MathNet.Numerics.dll
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\BtHeart.Controller.pdb
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\MathNet.Filtering.xml
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\bin\Release\MathNet.Numerics.xml
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Release\BtHeart.UI.csprojResolveAssemblyReference.cache
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Release\BtHeart.UI.Main.resources
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Release\BtHeart.UI.Properties.Resources.resources
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Release\BtHeart.UI.csproj.GenerateResource.Cache
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Release\BtHeart.UI.exe
+F:\Medikz\Project\移动心电开发\Code\src\BtHeart.UI\obj\Release\BtHeart.UI.pdb
