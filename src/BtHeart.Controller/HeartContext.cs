@@ -23,6 +23,7 @@ namespace BtHeart.Controller
         private List<IProcess> Processes;
         private IProcess AvgFilter;
         private IProcess FirFilter;
+        private IProcess IirFilter;
         private IProcess MedianFilter;
         private IProcess BandStopFilter;
 
@@ -64,7 +65,7 @@ namespace BtHeart.Controller
             {
                 AvgFilter,
                 FirFilter,
-                ////BandStopFilter,
+                //BandStopFilter,
                 MedianFilter,
             };
         }
@@ -167,8 +168,7 @@ namespace BtHeart.Controller
 
         public void EnabledFilter(bool flag)
         {
-            AvgFilter.Enabled = flag;
-            FirFilter.Enabled = flag;
+            Processes.ForEach(p => p.Enabled = flag);
         }
         #endregion 
     }

@@ -24,8 +24,12 @@ namespace BtHeart.UI
         private static double longSide = 0.2;
         // 小格间距,0.04s
         private static double shortSide = 0.04;
+        // X轴当前坐标
         private static double x = 0.0;
+        // 点的索引
         private static int pIndex = 0;
+        private static int xSec = 3;
+        private static int xPoints = xSec * HeartContext.F;
         #endregion
 
         public Main()
@@ -139,7 +143,7 @@ namespace BtHeart.UI
                     //    cmbPort.Focus();
                     //    return;
                     //}
-                    ChartHeart.Series[0].Points.Clear();
+                    ResetChartInfo();
                     HeartContext.Start();
                     btnConnect.Text = "关闭串口";
                 }
@@ -302,7 +306,7 @@ namespace BtHeart.UI
             ChartHeart.ChartAreas[0].AxisY.MinorGrid.LineColor = Color.LightGray;
 
             ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
-            ChartHeart.ChartAreas[0].AxisX.Maximum = 5; // 5s
+            ChartHeart.ChartAreas[0].AxisX.Maximum = xSec; // 5s
             ChartHeart.ChartAreas[0].AxisX.IsStartedFromZero = true;
             //ChartHeart.ChartAreas[0].AxisY.Minimum = -5;
             //ChartHeart.ChartAreas[0].AxisY.Maximum = 5; // -5~5mv;
@@ -324,12 +328,20 @@ namespace BtHeart.UI
             rbRedraw.Checked = true;
         }
 
+        private void ResetChartInfo()
+        {
+            ChartHeart.Series[0].Points.Clear();
+            ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
+            ChartHeart.ChartAreas[0].AxisX.Maximum = xSec; // 5s
+            x = 0; 
+        }
+
         private void Redraw(EcgPacket ecgPacket)
         {
             foreach (var data in ecgPacket.Data)
             {
-                double y = shortSide * (data / 1000) / 0.1;
-                if (ChartHeart.Series[0].Points.Count < 2500)
+                double y = data;
+                if (ChartHeart.Series[0].Points.Count < xPoints)
                 {
                     ChartHeart.Series[0].Points.AddXY(x, y);
                     x += delta;
@@ -337,7 +349,7 @@ namespace BtHeart.UI
                 else
                 {
                     ChartHeart.Series[0].Points[pIndex++].YValues[0] = y;
-                    pIndex = pIndex >= 2500 ? 0 : pIndex;
+                    pIndex = pIndex >= xPoints ? 0 : pIndex;
                 }
             }
             ChartHeart.Invalidate();
@@ -347,26 +359,23 @@ namespace BtHeart.UI
         {
             foreach (var data in ecgPacket.Data)
             {
-                double y = shortSide * (data / 1000) / 0.1;
+                double y = data;
                 ChartHeart.Series[0].Points.AddXY(x, y);
                 x += delta;
             }
-            if (ChartHeart.Series[0].Points.Count >= 2500)
+            if (ChartHeart.Series[0].Points.Count >= xPoints)
             {
                 for (int i = 0; i < 12; i++)
                     ChartHeart.Series[0].Points.RemoveAt(0);
                 ChartHeart.ChartAreas[0].AxisX.Minimum += 12 * delta;
-                ChartHeart.ChartAreas[0].AxisX.Maximum = 5 + ChartHeart.ChartAreas[0].AxisX.Minimum; // 5s
+                ChartHeart.ChartAreas[0].AxisX.Maximum = 2 + ChartHeart.ChartAreas[0].AxisX.Minimum; // 2s
             }
             ChartHeart.Invalidate();
         }
 
         private void rbRedraw_CheckedChanged(object sender, EventArgs e)
         {
-            ChartHeart.Series[0].Points.Clear();
-            ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
-            ChartHeart.ChartAreas[0].AxisX.Maximum = 5; // 5s
-            x = 0;        
+            ResetChartInfo();
         }
         #endregion
 

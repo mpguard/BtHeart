@@ -313,9 +313,14 @@ namespace BtHeart.Controller
         protected override List<double> Diff(List<double> x)
         {
             var yList = new List<double>();
-            for(int i = 1; i < x.Count;i++)
+            //for(int i = 1; i < x.Count;i++)
+            //{
+            //    double y = x[i] - x[i - 1];
+            //    yList.Add(y);
+            //}
+            for (int i = 0; i < x.Count-3; i++)
             {
-                double y = x[i] - x[i - 1];
+                double y = x[i+3] - x[i]; // 跳点计算
                 yList.Add(y);
             }
             return yList;

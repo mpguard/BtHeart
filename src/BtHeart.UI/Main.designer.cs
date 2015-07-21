@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.gbSet = new System.Windows.Forms.GroupBox();
             this.cmbParity = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -74,8 +74,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.lblRate = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rbRedraw = new System.Windows.Forms.RadioButton();
             this.rbFeedPaper = new System.Windows.Forms.RadioButton();
+            this.rbRedraw = new System.Windows.Forms.RadioButton();
             this.gbSet.SuspendLayout();
             this.tp蓝牙原始数据.SuspendLayout();
             this.gbReceive.SuspendLayout();
@@ -521,8 +521,8 @@
             // 
             // ChartHeart
             // 
-            chartArea3.Name = "ChartArea1";
-            this.ChartHeart.ChartAreas.Add(chartArea3);
+            chartArea1.Name = "ChartArea1";
+            this.ChartHeart.ChartAreas.Add(chartArea1);
             this.ChartHeart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChartHeart.Location = new System.Drawing.Point(3, 3);
             this.ChartHeart.Name = "ChartHeart";
@@ -533,7 +533,7 @@
             // 
             this.chkFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkFilter.AutoSize = true;
-            this.chkFilter.Location = new System.Drawing.Point(26, 559);
+            this.chkFilter.Location = new System.Drawing.Point(12, 537);
             this.chkFilter.Name = "chkFilter";
             this.chkFilter.Size = new System.Drawing.Size(48, 16);
             this.chkFilter.TabIndex = 1;
@@ -543,21 +543,23 @@
             // 
             // label8
             // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(23, 595);
+            this.label8.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.Location = new System.Drawing.Point(9, 575);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(56, 16);
+            this.label8.Size = new System.Drawing.Size(66, 19);
             this.label8.TabIndex = 13;
             this.label8.Text = "心率：";
             // 
             // lblRate
             // 
+            this.lblRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblRate.AutoSize = true;
-            this.lblRate.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblRate.Location = new System.Drawing.Point(71, 595);
+            this.lblRate.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblRate.Location = new System.Drawing.Point(71, 575);
             this.lblRate.Name = "lblRate";
-            this.lblRate.Size = new System.Drawing.Size(32, 16);
+            this.lblRate.Size = new System.Drawing.Size(39, 19);
             this.lblRate.TabIndex = 14;
             this.lblRate.Text = "...";
             // 
@@ -573,18 +575,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "走纸方式";
             // 
-            // rbRedraw
-            // 
-            this.rbRedraw.AutoSize = true;
-            this.rbRedraw.Location = new System.Drawing.Point(26, 21);
-            this.rbRedraw.Name = "rbRedraw";
-            this.rbRedraw.Size = new System.Drawing.Size(47, 16);
-            this.rbRedraw.TabIndex = 0;
-            this.rbRedraw.TabStop = true;
-            this.rbRedraw.Text = "重绘";
-            this.rbRedraw.UseVisualStyleBackColor = true;
-            this.rbRedraw.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
-            // 
             // rbFeedPaper
             // 
             this.rbFeedPaper.AutoSize = true;
@@ -596,6 +586,18 @@
             this.rbFeedPaper.Text = "走纸";
             this.rbFeedPaper.UseVisualStyleBackColor = true;
             this.rbFeedPaper.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
+            // 
+            // rbRedraw
+            // 
+            this.rbRedraw.AutoSize = true;
+            this.rbRedraw.Location = new System.Drawing.Point(26, 21);
+            this.rbRedraw.Name = "rbRedraw";
+            this.rbRedraw.Size = new System.Drawing.Size(47, 16);
+            this.rbRedraw.TabIndex = 0;
+            this.rbRedraw.TabStop = true;
+            this.rbRedraw.Text = "重绘";
+            this.rbRedraw.UseVisualStyleBackColor = true;
+            this.rbRedraw.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
             // 
             // Main
             // 

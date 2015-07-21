@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MathNet.Filtering;
 using MathNet.Filtering.FIR;
+using MathNet.Filtering.IIR;
 using MathNet.Filtering.Median;
 
 namespace BtHeart.Controller
@@ -57,7 +58,7 @@ namespace BtHeart.Controller
 
         public MedianFilterProcess()
         {
-            MedianFilter = new OnlineMedianFilter(425);
+            MedianFilter = new OnlineMedianFilter(385);
         }
 
         public void Init()
@@ -69,7 +70,8 @@ namespace BtHeart.Controller
         {
             if (!Enabled)
                 return rawData;
-            return MedianFilter.ProcessSample(rawData);
+            double m = MedianFilter.ProcessSample(rawData);
+            return rawData - m;
         }
     }
 
@@ -111,7 +113,7 @@ namespace BtHeart.Controller
 
         public BandPassFirFilterProcess()
         {
-            var bandCoefficient = FirCoefficients.BandPass(HeartContext.F, 2, 37, 50);
+            var bandCoefficient = FirCoefficients.BandPass(HeartContext.F, 1, 37, 50);
             BandFirFilter = new OnlineFirFilter(bandCoefficient);
         }
 
@@ -128,6 +130,31 @@ namespace BtHeart.Controller
             return bandecg;
         }
     }
+
+    //public class BandPassIirFilterProcess:IProcess
+    //{
+    //    private OnlineIirFilter BandIirFilter;
+    //    public bool Enabled { get; set; }
+
+    //    public BandPassIirFilterProcess()
+    //    {
+    //        var bandCoefficient = IirCoefficients.BandPass(HeartContext.F, 37, 1);
+    //        BandIirFilter = new OnlineIirFilter(bandCoefficient);
+    //    }
+
+    //    public void Init()
+    //    {
+    //        BandIirFilter.Reset();
+    //    }
+
+    //    public double Process(double rawData)
+    //    {
+    //        if (!Enabled) 
+    //            return rawData;
+    //        double bandecg = BandIirFilter.ProcessSample(rawData);
+    //        return bandecg;
+    //    }
+    //}
 
     /// <summary>
     /// 带阻滤波器
