@@ -16,7 +16,7 @@ namespace BtHeart.Controller
         public const int ThesoldSec = 5; // 初始阈值需5秒确定
         public const int AdjustSec = 2;// 动态调整阈值，心率刷新每2秒
         public const double RefractorySec = 0.1; // 跳过200ms不应期检测
-        public const double Th = 8; // 阈值比例系数
+        public static double Th = 4; // 阈值比例系数
 
         private IPump Pump;
         private IAnalyze Analyze;
@@ -43,15 +43,15 @@ namespace BtHeart.Controller
             worker.DoWork += worker_DoWork;
             worker.WorkerSupportsCancellation = true;
 
-            //Pump = new Com();
+            Pump = new Com();
             //Pump = new RandomPump();
-            Pump = new FilePump();
-            Pump.Received += Pump_Received;
+            //Pump = new FilePump();
+            //Pump.Received += Pump_Received;
 
             Analyze = new ComDataAnalyze(Pump);
             Analyze.Analyzed += Analyze_Analyzed;
 
-            Rate = new DifferenceHeartRateEx(this);
+            Rate = new DifferenceHeartRate(this);
             Rate.RateAnalyzed += Rate_RateAnalyzed;
 
             AvgFilter = new AvgFilterProcess();
@@ -89,7 +89,7 @@ namespace BtHeart.Controller
         {
             var pdata = ProcessData(data);
             analyzedQueue.Enqueue(pdata);
-            ecgQueue.Enqueue(pdata);
+            //ecgQueue.Enqueue(pdata);
         }
 
         private void Pump_Received(byte[] buffer)

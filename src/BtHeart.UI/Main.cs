@@ -62,6 +62,7 @@ namespace BtHeart.UI
                     Redraw(ecgPacket);
                 else if (rbFeedPaper.Checked)
                     FeedPaper(ecgPacket);
+                ChartHeart.ChartAreas[0].RecalculateAxesScale();
             }));
         }
 

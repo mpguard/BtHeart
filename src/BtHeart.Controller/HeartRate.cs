@@ -78,9 +78,13 @@ namespace BtHeart.Controller
     public class DifferenceHeartRate:HeartRate
     {
         //protected ConcurrentQueue<double> differenceQueue = new ConcurrentQueue<double>(); // 差分阈值
-        private double DDmax = 0.0; // 正差分阈值
-        private double DDmin = 0.0; // 负差分阈值
-        private double AAmax = 0.0; // 幅度阈值
+        private double D1 = 0.0; // 正差分阈值
+        private double D2 = 0.0; // 负差分阈值
+        private double D3 = 0.0; // 幅度阈值
+        private double RR = 0.0; // RR间期
+        private double HR = 0.0; // R波幅度
+        private int LastRIndex = 0; // 最后R波位置
+        private List<double> DList = new List<double>();
         protected int LastRate = -1; // 上一次心率
         protected int? NewRate = null; // 当前心率
         protected int ErrorCnt = 0; // 异常次数
@@ -101,18 +105,10 @@ namespace BtHeart.Controller
 
         protected override List<double> Diff(List<double> x)
         {
-            //var yList = new List<double>();
-            //for (int i = 2; i < x.Count - 2; i++)
-            //{
-            //    double y = x[i + 2] + x[i + 1] - x[i - 1] - x[i - 2];
-            //    yList.Add(y);
-            //}
-            //return yList;
             var yList = new List<double>();
-            for (int i = 4; i < x.Count - 4; i++)
+            for (int i = 1; i < x.Count; i++)
             {
-                double y = x[i + 4] + x[i + 3] + x[i + 2] + x[i + 1] -
-                    x[i - 1] - x[i - 2] - x[i - 3] - x[i - 4];
+                double y = x[i] - x[i - 1];
                 yList.Add(y);
             }
             return yList;
@@ -131,8 +127,9 @@ namespace BtHeart.Controller
                 case RateState.Initialized:
                     if (CalcRate())
                     {
-                        CheckRate();
-                        CheckError();
+                        //CheckRate();
+                        //CheckError();
+                        //CheckTh();
                     }
                     break;
                 case RateState.Error:
@@ -162,21 +159,62 @@ namespace BtHeart.Controller
                 var diffList = Diff(ecgList);
 
                 int size = HeartContext.ThesoldSec * HeartContext.F / 5;
-                double[] ddmaxThesold = new double[5];
-                double[] ddminThesold = new double[5];
-                double[] aamaxThesold = new double[5];
-                for (int i = 0; i < 5;i++ )
+                double[] ddThesold = new double[5];
+                for (int i = 0; i < 5;i++)
                 {
                     var sequence = diffList.Skip(i * size).Take(size);
-                    ddmaxThesold[i] = diffList.Max();
-                    ddminThesold[i] = diffList.Min();
-                    aamaxThesold[i] = ecgList.Max();
+                    ddThesold[i] = diffList.Max();
                 }
 
                 // 确定初始阈值
-                DDmax = ddmaxThesold.Average() / HeartContext.Th;
-                DDmin = ddminThesold.Average() / HeartContext.Th;
-                AAmax = aamaxThesold.Average() / HeartContext.Th;
+                DList.AddRange(ddThesold);
+                double m0 = DList.Average();
+                D1 = m0 * 0.4;
+                D2 = m0 * 0.5;
+                D3 = m0 * 2.0 / 9;
+
+                List<int> posR = new List<int>(); // R值位置
+                for (int i = 1; i < ecgList.Count; i++)
+                {
+                    double delta = ecgList[i] - ecgList[i - 1];
+                    if (delta > D1)
+                    {
+                        i++;
+                        delta = ecgList[i] - ecgList[i - 1];
+                        if (delta > D2)
+                        {
+                            i++;
+                            int endIndex = i + (int)(0.1 * HeartContext.F);
+                            endIndex = endIndex >= ecgList.Count ? ecgList.Count : endIndex;
+                            for (; i < endIndex; i++)
+                            {
+                                delta = ecgList[i] - ecgList[i - 1];
+                                if (Math.Abs(delta) > D3 && delta < 0) // 找到R波点
+                                {
+                                    // 确定R波位置和RR间期
+                                    int r = i - 1;
+                                    posR.Add(r);
+                                    i += (int)(0.1 * HeartContext.F);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 确定RR间期和R波幅度
+                posR = posR.Take(10).ToList();
+                if (posR.Count > 1)
+                {
+                    for (int i = 1; i < posR.Count; i++)
+                    {
+                        RR += posR[i] - posR[i - 1];
+                        HR += ecgList[posR[i]];
+                    }
+                    RR /= (posR.Count - 1);
+                    RR *= 1.1;
+                    HR /= (posR.Count - 1);
+                    LastRIndex = posR.Last() - ecgList.Count;
+                }
 
                 diffList.Clear();
                 ecgList.Clear();
@@ -192,50 +230,98 @@ namespace BtHeart.Controller
             if (ecgQueue.Count >= allSize)
             {
                 var ecgList = ecgQueue.ToList();
-                var diffList = Diff(ecgList);
-                DDmax = (0.8 * DDmax + 0.2 * diffList.Max())/HeartContext.Th;
-                DDmin = (0.8 * DDmin + 0.2 * diffList.Min())/HeartContext.Th;
-                AAmax = (0.8 * AAmax + 0.2 * ecgList.Max())/HeartContext.Th;
-                Console.WriteLine(DDmax + "," + DDmin+","+AAmax);
                 List<int> posR = new List<int>(); // R值位置
 
-                for (int i = 0; i < diffList.Count - 5;i++ )
+                int i = 1;
+                for (i = 1; i < ecgList.Count; i++)
                 {
-                    // 满足三个条件：
-                    // 1.当前点差分值大于正差分阈值
-                    // 2.下一点差分值大于正差分阈值
-                    // 3.当前点幅度大于幅度阈值
-                    if (diffList[i] > DDmax && diffList[i + 1] > DDmax && diffList[i + 2] > DDmax
-                        && diffList[i + 3] > DDmax && diffList[i + 4] > DDmax
-                        && ecgList[i] > AAmax)
+                    double delta = ecgList[i] - ecgList[i - 1];
+                    if(delta > D1)
                     {
-                        int windowSize = (int)(0.08 * HeartContext.F);// 80ms窗口
-                        var tempList = diffList.Skip(i).Take(windowSize).ToList();
-                        // 窗口内寻找是否存在小负差分阈值的点
-                        if(tempList.Any(e => e < DDmin))
+                        i++;
+                        delta = ecgList[i] - ecgList[i - 1];
+                        if(delta > D2)
                         {
-                            for(int j = 0; j < tempList.Count - 1;j++)
+                            i++;
+                            int endIndex = i+(int)(0.1 * HeartContext.F);
+                            endIndex = endIndex >= ecgList.Count?ecgList.Count:endIndex;
+                            for (; i < endIndex; i++)
                             {
-                                if(tempList[j+1] > 0 && tempList[j] < 0)
+                                delta = ecgList[i] - ecgList[i - 1];
+                                if(Math.Abs(delta) > D3 && delta < 0) // 找到R波点
                                 {
-                                    posR.Add(i+j);
-                                    i += (int)(HeartContext.RefractorySec*HeartContext.F); // 跳过不应期
-                                    break;
+                                    // 确定R波位置和RR间期
+                                    int r = i - 1; 
+                                    posR.Add(r);
+
+                                    int newRR = posR.Last() - LastRIndex;
+                                    if (newRR >= 0.6*RR && newRR <= 1.6 * RR)
+                                    {
+                                        RR = (int)((RR + newRR) / 2);
+                                        
+                                        // 更新阈值
+                                        DList = DList.OrderByDescending(e => e).ToList();
+                                        DList[DList.Count - 1] = delta;
+                                        double n0 = DList.Average();
+                                        D1 = 0.25*n0+0.1*D1;
+                                        D2 = 0.2*n0+0.2*D1;
+                                        D3 = 0.1*n0+0.1*D1;
+                                    }
+                                    else if (newRR < 0.6 * RR) // 检测多检
+                                    {
+                                        
+                                    }
+                                    else if (newRR > 1.6 * RR) // 检测漏检,包括倒置R波
+                                    {
+                                        int pr = LastRate < 0 ? 0 : LastRate;
+                                        int start = pr + (int)(0.7 * RR);
+                                        int end = pr + (int)(1.2 * RR);
+                                        for(int j = start;j < end && j < ecgList.Count;j++)
+                                        {
+                                            if(ecgList[j] > 0.8*HR && ecgList[j]<1.2*RR)
+                                            {
+                                                i = j;
+                                                r = i + 1;
+                                                posR.Add(r);
+                                                newRR = posR.Last() - LastRIndex;
+                                                RR = (int)((RR + newRR) / 2);
+                                            }
+                                            else // 找幅值最小的点
+                                            {
+                                                var tempList = ecgList.Skip(start).Take(end - start).ToList();
+                                                var minIndex = tempList.IndexOf(tempList.Min());
+                                                i = minIndex;
+                                                r = i + 1;
+                                                posR.Add(r);
+                                                newRR = posR.Last() - LastRIndex;
+                                                RR = (int)((RR + newRR) / 2);
+                                            }
+                                        }
+                                    }
+                                    LastRIndex = i; // 更新
+                                    i += (int)(0.1 * HeartContext.F);
                                 }
                             }
                         }
                     }
                 }
 
-                if (posR.Count <= 1)
-                    NewRate = null;
-                else
+                double rr = 0;
+                if (posR.Count == 0)
                 {
-                    double rr = 0;
-                    rr = 60*HeartContext.F*(posR.Count-1)/(double)(posR.Last()-posR.First());
+                    NewRate = null;
+                }
+                if (posR.Count == 1 && RR > 0)
+                {
+                    rr = 60 * HeartContext.F / RR;
                     NewRate = Convert.ToInt32(rr);
                 }
-                diffList.Clear();
+                else if (posR.Count > 1)
+                {
+                    rr = 60 * HeartContext.F * (posR.Count - 1) / (double)(posR.Last() - posR.First());
+                    NewRate = Convert.ToInt32(rr);
+                }
+                LastRIndex -= ecgList.Count;
                 ecgList.Clear();
                 ecgQueue.Clear();
                 return true;
@@ -256,17 +342,20 @@ namespace BtHeart.Controller
             {
                 if (LastRate != -1)
                 {
-                    if (Math.Abs(NewRate.Value - LastRate) >= 10) // 如果当前心跳与上次心跳差异太大，则取平均
-                    {
-                        NewRate = LastRate;
-                    }
-                    else if(Math.Abs(NewRate.Value - LastRate) >= 5)
+                    // 心率变化太快
+                    if(Math.Abs(NewRate.Value - LastRate) >= 5)
                     {
                         NewRate = (NewRate + LastRate) / 2;
                     }
-
-                    if (NewRate < 30 || NewRate > 250) // 心率超过范围
+                    // 心率超过范围
+                    if (NewRate < 30) 
                     {
+                        NewRate = 30;
+                        ErrorCnt++;
+                    }
+                    else if(NewRate > 240)
+                    {
+                        NewRate = 240;
                         ErrorCnt++;
                     }
                 }
@@ -284,13 +373,36 @@ namespace BtHeart.Controller
             }
         }
 
+        // 修正阈值
+        private void CheckTh()
+        {
+            if (ErrorCnt >= 1)
+            {
+                if (!NewRate.HasValue)
+                {
+                    HeartContext.Th *= 2;
+                    HeartContext.Th = HeartContext.Th >= 16 ? 2 : HeartContext.Th;
+                }
+                else if (NewRate >= 240)
+                {
+                    HeartContext.Th += 2;
+                    HeartContext.Th = HeartContext.Th <= 2 ? 2 : HeartContext.Th;
+                }
+                else if (NewRate <= 30)
+                {
+                    HeartContext.Th -= 2;
+                    HeartContext.Th = HeartContext.Th >= 16 ? 2 : HeartContext.Th;
+                }
+            }
+        }
+
         // 清空参数
         private void Clear()
         {
             ecgQueue.Clear();
-            DDmax = 0.0;
-            DDmin = 0.0;
-            AAmax = 0.0;
+            D1 = 0.0;
+            D2 = 0.0;
+            D3 = 0.0;
             ErrorCnt = 0;
             LastRate = -1;
             NewRate = null;
