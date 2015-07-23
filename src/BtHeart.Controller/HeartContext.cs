@@ -13,7 +13,7 @@ namespace BtHeart.Controller
     {
         public const int F = 500; // 采样频率
         public const int JumpSec = 3; // 初始跳过3秒
-        public const int ThesoldSec = 5; // 初始阈值需5秒确定
+        public const int ThesoldSec = 7; // 初始阈值需5秒确定
         public const int AdjustSec = 2;// 动态调整阈值，心率刷新每2秒
         public const double RefractorySec = 0.1; // 跳过200ms不应期检测
         public static double Th = 4; // 阈值比例系数

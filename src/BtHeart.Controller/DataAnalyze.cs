@@ -80,6 +80,9 @@ namespace BtHeart.Controller
             bool flag = false;
             while (bufferQueue.Count >= 4 && !flag)
             {
+                if (bufferQueue.Count > 5000) // 数据堆积，直接清空
+                    bufferQueue.Clear();
+
                 byte head1 = 0x00,head2 = 0x00;
                 if (bufferQueue.TryDequeue(out head1) &&
                     bufferQueue.TryDequeue(out head2))
