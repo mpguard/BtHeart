@@ -292,7 +292,7 @@ namespace BtHeart.Controller
                                         // 此范围内找幅值最大的点
                                         var tempList = ecgList.Skip(start).Take(end - start).ToList();
                                         var maxHR = ecgList.Max();
-                                        if (maxHR > 0.8 * HR && maxHR < 1.2 * RR)
+                                        if (maxHR > 0.8 * HR && maxHR < 1.2 * HR)
                                         {
                                             var maxIndex = tempList.IndexOf(maxHR);
                                             i = maxIndex;
