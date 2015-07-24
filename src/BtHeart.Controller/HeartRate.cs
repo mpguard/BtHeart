@@ -156,6 +156,7 @@ namespace BtHeart.Controller
             int allSize = HeartContext.ThesoldSec * HeartContext.F;
             if (ecgQueue.Count >= allSize)
             {
+                Console.WriteLine((ecgQueue.Max() - ecgQueue.Min()).ToString());
                 var ecgList = ecgQueue.ToList();
                 var diffList = Diff(ecgList);
 
@@ -207,7 +208,6 @@ namespace BtHeart.Controller
                 }
 
                 // 确定RR间期和R波幅度
-                posR = posR.Take(10).ToList();
                 if (posR.Count > 1)
                 {
                     for (int i = 1; i < posR.Count; i++)
@@ -223,6 +223,7 @@ namespace BtHeart.Controller
                 }
                 else // 如果RR间期无法确定，重新计算阈值
                 {
+                    Clear();
                     State = RateState.Uninitialized;
                     Console.WriteLine("重新计算阈值");
                 }
@@ -239,6 +240,7 @@ namespace BtHeart.Controller
             int allSize = HeartContext.AdjustSec*HeartContext.F;
             if (ecgQueue.Count >= allSize)
             {
+                Console.WriteLine((ecgQueue.Max() - ecgQueue.Min()).ToString());
                 var ecgList = ecgQueue.ToList();
                 List<int> posR = new List<int>(); // R值位置
 
@@ -258,7 +260,8 @@ namespace BtHeart.Controller
                             for (; i < endIndex; i++)
                             {
                                 delta = ecgList[i] - ecgList[i - 1];
-                                if(Math.Abs(delta) > D3 && delta < 0) // 找到R波点
+                                if(Math.Abs(delta) > D3 && delta < 0 &&
+                                    ecgList[i-1] > 0.8*HR && ecgList[i-1] < 1.2*HR) // 找到R波点
                                 {
                                     // 确定R波位置和RR间期
                                     int r = i - 1; 
@@ -273,9 +276,9 @@ namespace BtHeart.Controller
                                         DList = DList.OrderByDescending(e => e).ToList();
                                         DList[DList.Count - 1] = delta;
                                         double n0 = DList.Average();
-                                        D1 = 0.25*n0+0.1*D1;
-                                        D2 = 0.2*n0+0.2*D1;
-                                        D3 = 0.1*n0+0.1*D1;
+                                        D1 = 0.25 * n0 + 0.1 * D1; 
+                                        D2 = 0.2 * n0 + 0.2 * D1;
+                                        D3 = 0.1 * n0 + 0.1 * D1;
                                     }
                                     else if (newRR < 0.6 * RR) // 检测多检,论文没有说明，暂时留空
                                     {
@@ -311,7 +314,7 @@ namespace BtHeart.Controller
                                             RR = (int)((RR + newRR) / 2);
                                         }
                                     }
-                                    LastRIndex = i; // 更新
+                                    LastRIndex = posR.Last(); // 更新R值位置
                                     i += (int)(0.1 * HeartContext.F);
                                 }
                             }
@@ -336,7 +339,7 @@ namespace BtHeart.Controller
                     else
                     {
                         rr = 60 * HeartContext.F * (posR.Count - 1) / (double)(posR.Last() - posR.First());
-                        NewRate = Convert.ToInt32(rr);
+                        NewRate = (int)(rr);
                     }
                 }
                 LastRIndex -= ecgList.Count;
@@ -394,8 +397,6 @@ namespace BtHeart.Controller
             if (ErrorCnt >= 2 || WarningCnt >= 5)
             {
                 State = RateState.Error;
-                ErrorCnt = 0;
-                WarningCnt = 0;
             }
         }
 
@@ -425,11 +426,13 @@ namespace BtHeart.Controller
         // 清空参数
         private void Clear()
         {
+            DList.Clear();
             ecgQueue.Clear();
             D1 = 0.0;
             D2 = 0.0;
             D3 = 0.0;
             ErrorCnt = 0;
+            WarningCnt = 0;
             LastRate = -1;
             NewRate = null;
             State = RateState.Jumped;

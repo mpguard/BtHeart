@@ -63,10 +63,10 @@ namespace BtHeart.Controller
 
             Processes = new List<IProcess>()
             {
-                AvgFilter,
+                //AvgFilter,
                 FirFilter,
                 //BandStopFilter,
-                MedianFilter,
+                //MedianFilter,
             };
         }
 
