@@ -70,9 +70,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomPump.cs" />
     <Compile Include="TxtPump.cs" />
-    <Compile Include="Wavelet.cs" />
-    <Compile Include="Wavelet_bak.cs" />
-    <Compile Include="WaveFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
