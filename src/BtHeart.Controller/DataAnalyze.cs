@@ -84,10 +84,9 @@ namespace BtHeart.Controller
                     bufferQueue.Clear();
 
                 byte head1 = 0x00,head2 = 0x00;
-                if (bufferQueue.TryDequeue(out head1) &&
-                    bufferQueue.TryDequeue(out head2))
+                if (bufferQueue.TryDequeue(out head1) && head1 == 0x55)
                 {
-                    if (head1 == 0x55 && head2 == 0x55)
+                    if (bufferQueue.TryDequeue(out head2) && head2 == 0x55)
                     {
                         byte bh = 0x00, bl = 0x00;
                         if (bufferQueue.TryDequeue(out bh) &&
@@ -96,6 +95,7 @@ namespace BtHeart.Controller
                             int high = (int)bh;
                             int low = (int)bl;
                             double hv = ((high << 8) + low) * 3.3 / 4095 - 1.5;
+                            //double hv = (high << 8) + low;
                             OnAnalyze(hv);
                         }
                     }

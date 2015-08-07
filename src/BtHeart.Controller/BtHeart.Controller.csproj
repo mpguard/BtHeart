@@ -54,7 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Com.cs" />
-    <Compile Include="ConcurrentQueueExtensions.cs" />
+    <Compile Include="Hilbert.cs" />
+    <Compile Include="QueueExtensions.cs" />
     <Compile Include="DataAnalyze.cs" />
     <Compile Include="EcgPacket.cs" />
     <Compile Include="FilePump.cs" />
@@ -69,6 +70,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomPump.cs" />
     <Compile Include="TxtPump.cs" />
+    <Compile Include="Wavelet.cs" />
+    <Compile Include="Wavelet_bak.cs" />
+    <Compile Include="WaveFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

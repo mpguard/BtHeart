@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using BtHeart.Controller;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Configuration;
+using System.Numerics;
 
 namespace BtHeart.UI
 {
@@ -309,9 +310,9 @@ namespace BtHeart.UI
             ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
             ChartHeart.ChartAreas[0].AxisX.Maximum = xSec; // 5s
             ChartHeart.ChartAreas[0].AxisX.IsStartedFromZero = true;
-            //ChartHeart.ChartAreas[0].AxisY.Minimum = -5;
-            //ChartHeart.ChartAreas[0].AxisY.Maximum = 5; // -5~5mv;
-            //ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
+            ChartHeart.ChartAreas[0].AxisY.Minimum = -0.5;
+            ChartHeart.ChartAreas[0].AxisY.Maximum = 0.5; // -2~2mv;
+            ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
 
             ChartHeart.ChartAreas[0].AxisX.IsLabelAutoFit = true;
             ChartHeart.ChartAreas[0].AxisY.IsLabelAutoFit = true;
@@ -380,5 +381,15 @@ namespace BtHeart.UI
         }
         #endregion
 
+        private void btnWavelet_Click(object sender, EventArgs e)
+        {
+            double[] data = {1,2,3,4,5,6,7,8,9,10 };
+            Complex[] result = Hilbert.MatlabHilbert(data);
+            for(int i = 0;i < result.Length;i++)
+            {
+                var v = result[i].Real * result[i].Real + result[i].Imaginary * result[i].Imaginary;
+                Console.Write(v.ToString()+ ",");
+            }
+        }
     }
 }

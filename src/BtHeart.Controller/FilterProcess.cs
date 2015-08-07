@@ -6,6 +6,7 @@ using MathNet.Filtering;
 using MathNet.Filtering.FIR;
 using MathNet.Filtering.IIR;
 using MathNet.Filtering.Median;
+using MathNet.Filtering.Windowing;
 
 namespace BtHeart.Controller
 {
@@ -37,7 +38,7 @@ namespace BtHeart.Controller
         private double GetMean(double rawData)
         {
             meanQueue.Enqueue(rawData);
-            if (meanQueue.Count == 12)
+            if (meanQueue.Count == 10)
             {
                 meanQueue.Dequeue();
                 return meanQueue.Average();
@@ -58,7 +59,7 @@ namespace BtHeart.Controller
 
         public MedianFilterProcess()
         {
-            MedianFilter = new OnlineMedianFilter(385);
+            MedianFilter = new OnlineMedianFilter(425);
         }
 
         public void Init()
@@ -113,7 +114,7 @@ namespace BtHeart.Controller
 
         public BandPassFirFilterProcess()
         {
-            var bandCoefficient = FirCoefficients.BandPass(HeartContext.F, 1, 37, 50);
+            var bandCoefficient = FirCoefficients.BandPass(HeartContext.F, 1, 37, 150);
             BandFirFilter = new OnlineFirFilter(bandCoefficient);
         }
 
@@ -131,30 +132,59 @@ namespace BtHeart.Controller
         }
     }
 
-    //public class BandPassIirFilterProcess:IProcess
-    //{
-    //    private OnlineIirFilter BandIirFilter;
-    //    public bool Enabled { get; set; }
+    public class HanWindowProcess : IProcess
+    {
+        private IWindow Han;
+        private OnlineIirFilter HanFirFilter;
 
-    //    public BandPassIirFilterProcess()
-    //    {
-    //        var bandCoefficient = IirCoefficients.BandPass(HeartContext.F, 37, 1);
-    //        BandIirFilter = new OnlineIirFilter(bandCoefficient);
-    //    }
+        public bool Enabled { get; set; }
+        public HanWindowProcess()
+        {
+            Han = new HannWindow();
+            Han.Width = 10;
+            var hanCoefficient = Han.CopyToArray();
+            HanFirFilter = new OnlineIirFilter(hanCoefficient);
+        }
+        public void Init()
+        {
+            Han.Precompute();
+            HanFirFilter.Reset();
+        }
 
-    //    public void Init()
-    //    {
-    //        BandIirFilter.Reset();
-    //    }
+        public double Process(double rawData)
+        {
+            if (!Enabled)
+                return rawData;
+            double hanecg = HanFirFilter.ProcessSample(rawData);
+            return hanecg;
+        }
+    }
 
-    //    public double Process(double rawData)
-    //    {
-    //        if (!Enabled) 
-    //            return rawData;
-    //        double bandecg = BandIirFilter.ProcessSample(rawData);
-    //        return bandecg;
-    //    }
-    //}
+
+    public class BandPassIirFilterProcess : IProcess
+    {
+        private OnlineIirFilter BandIirFilter;
+        public bool Enabled { get; set; }
+
+        public BandPassIirFilterProcess()
+        {
+            var bandCoefficient = IirCoefficients.BandPass(HeartContext.F,2*Math.PI,37*2*Math.PI);
+            BandIirFilter = new OnlineIirFilter(bandCoefficient);
+        }
+
+        public void Init()
+        {
+            BandIirFilter.Reset();
+        }
+
+        public double Process(double rawData)
+        {
+            if (!Enabled)
+                return rawData;
+            double bandecg = BandIirFilter.ProcessSample(rawData);
+            return bandecg;
+        }
+    }
 
     /// <summary>
     /// 带阻滤波器
@@ -166,7 +196,7 @@ namespace BtHeart.Controller
 
         public BandStopFirFilterProcess()
         {
-            var bandCoefficient = FirCoefficients.BandStop(HeartContext.F, 45, 50, 40);
+            var bandCoefficient = FirCoefficients.BandStop(HeartContext.F, 45, 55, 300);
             BandFirFilter = new OnlineFirFilter(bandCoefficient);
         }
 

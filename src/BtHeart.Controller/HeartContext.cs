@@ -13,9 +13,9 @@ namespace BtHeart.Controller
     {
         public const int F = 500; // 采样频率
         public const int JumpSec = 3; // 初始跳过3秒
-        public const int ThesoldSec = 7; // 初始阈值需5秒确定
-        public const int AdjustSec = 2;// 动态调整阈值，心率刷新每2秒
-        public const double RefractorySec = 0.1; // 跳过200ms不应期检测
+        public const int ThesoldSec = 5; // 初始阈值需5秒确定
+        public const int AdjustSec = 3;// 动态调整阈值，心率刷新每2秒
+        public const double RefractorySec = 0.2; // 跳过200ms不应期检测
         public static double Th = 4; // 阈值比例系数
 
         private IPump Pump;
@@ -24,6 +24,7 @@ namespace BtHeart.Controller
         private IProcess AvgFilter;
         private IProcess FirFilter;
         private IProcess IirFilter;
+        private IProcess HanFilter;
         private IProcess MedianFilter;
         private IProcess BandStopFilter;
 
@@ -51,22 +52,26 @@ namespace BtHeart.Controller
             Analyze = new ComDataAnalyze(Pump);
             Analyze.Analyzed += Analyze_Analyzed;
 
-            Rate = new DifferenceHeartRate(this);
+            Rate = new DifferenceHilbertHeartRate(this);
             Rate.RateAnalyzed += Rate_RateAnalyzed;
 
             AvgFilter = new AvgFilterProcess();
             //FirFilter = new MyFirFilterProcess();
             //FirFilter = new LowFirFilterProcess();
             FirFilter = new BandPassFirFilterProcess();
+            IirFilter = new BandPassIirFilterProcess();
+            HanFilter = new HanWindowProcess();
             BandStopFilter = new BandStopFirFilterProcess();
             MedianFilter = new MedianFilterProcess();
 
             Processes = new List<IProcess>()
             {
-                //AvgFilter,
+                AvgFilter,
                 FirFilter,
                 //BandStopFilter,
-                //MedianFilter,
+                HanFilter,
+                //IirFilter,
+                MedianFilter,
             };
         }
 
@@ -89,7 +94,7 @@ namespace BtHeart.Controller
         {
             var pdata = ProcessData(data);
             analyzedQueue.Enqueue(pdata);
-            //ecgQueue.Enqueue(pdata);
+            ecgQueue.Enqueue(pdata);
         }
 
         private void Pump_Received(byte[] buffer)

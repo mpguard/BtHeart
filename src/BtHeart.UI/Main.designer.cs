@@ -76,6 +76,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rbFeedPaper = new System.Windows.Forms.RadioButton();
             this.rbRedraw = new System.Windows.Forms.RadioButton();
+            this.btnWavelet = new System.Windows.Forms.Button();
             this.gbSet.SuspendLayout();
             this.tp蓝牙原始数据.SuspendLayout();
             this.gbReceive.SuspendLayout();
@@ -415,6 +416,7 @@
             // 
             // tpBLE数据
             // 
+            this.tpBLE数据.Controls.Add(this.btnWavelet);
             this.tpBLE数据.Controls.Add(this.btn滤波保存);
             this.tpBLE数据.Controls.Add(this.btn保存);
             this.tpBLE数据.Controls.Add(this.btn原始数据解析);
@@ -599,6 +601,17 @@
             this.rbRedraw.UseVisualStyleBackColor = true;
             this.rbRedraw.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
             // 
+            // btnWavelet
+            // 
+            this.btnWavelet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnWavelet.Location = new System.Drawing.Point(650, 604);
+            this.btnWavelet.Name = "btnWavelet";
+            this.btnWavelet.Size = new System.Drawing.Size(97, 29);
+            this.btnWavelet.TabIndex = 8;
+            this.btnWavelet.Text = "小波变换测试";
+            this.btnWavelet.UseVisualStyleBackColor = true;
+            this.btnWavelet.Click += new System.EventHandler(this.btnWavelet_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -693,6 +706,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton rbFeedPaper;
         private System.Windows.Forms.RadioButton rbRedraw;
+        private System.Windows.Forms.Button btnWavelet;
     }
 }
 
