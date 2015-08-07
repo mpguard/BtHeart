@@ -11,6 +11,7 @@ using BtHeart.Controller;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Configuration;
 using System.Numerics;
+using MathNet.Numerics.Statistics;
 
 namespace BtHeart.UI
 {
@@ -383,13 +384,16 @@ namespace BtHeart.UI
 
         private void btnWavelet_Click(object sender, EventArgs e)
         {
-            double[] data = {1,2,3,4,5,6,7,8,9,10 };
-            Complex[] result = Hilbert.MatlabHilbert(data);
-            for(int i = 0;i < result.Length;i++)
-            {
-                var v = result[i].Real * result[i].Real + result[i].Imaginary * result[i].Imaginary;
-                Console.Write(v.ToString()+ ",");
-            }
+            //double[] data = {1,2,3,4,5,6,7,8,9,10 };
+            //Complex[] result = Hilbert.MatlabHilbert(data);
+            //for(int i = 0;i < result.Length;i++)
+            //{
+            //    var v = result[i].Real * result[i].Real + result[i].Imaginary * result[i].Imaginary;
+            //    Console.Write(v.ToString()+ ",");
+            //}
+            double[] data = { 371,371,371,371,371,371,371, 10 };
+            //double[] data = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            Console.WriteLine(Statistics.Variance(data));
         }
     }
 }

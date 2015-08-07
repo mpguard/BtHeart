@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.Statistics;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -446,6 +447,9 @@ namespace BtHeart.Controller
         }
     }
 
+    /// <summary>
+    /// 差分+Hilbert变换计算心率
+    /// </summary>
     public class DifferenceHilbertHeartRate:HeartRate
     {
         //protected ConcurrentQueue<double> differenceQueue = new ConcurrentQueue<double>(); // 差分阈值
@@ -458,7 +462,7 @@ namespace BtHeart.Controller
         protected int WarningCnt = 0; // 数值变化过大的警告
         protected RateState State = RateState.Jumped;
 
-        private Queue<int> RRIntervals = new Queue<int>(); // 最多保留8个R波间期
+        private Queue<double> RRIntervals = new Queue<double>(); // 最多保留8个R波间期
         private Queue<double> HilbertMaxs = new Queue<double>(); // 最多保留8个希尔伯特变换最大值
 
         public DifferenceHilbertHeartRate(HeartContext hc)
@@ -514,24 +518,27 @@ namespace BtHeart.Controller
 
         protected override void Analyze()
         {
+            bool flag = false;
             switch (State)
             {
                 case RateState.Jumped:
                     Jump();
                     break;
                 case RateState.Uninitialized:
-                    InitThesold();
+                    flag = InitThesold();
                     break;
                 case RateState.Initialized:
-                    if (CalcRate())
-                    {
-                        CheckRate();
-                        CheckError();
-                    }
+                    flag = DetectRWave();
                     break;
                 case RateState.Error:
                     Clear();
                     break;
+            }
+            if(flag)
+            {
+                CheckRRTh();
+                CheckRate();
+                CheckError();
             }
             OnRateAnalyze(NewRate);
         }
@@ -547,7 +554,7 @@ namespace BtHeart.Controller
         }
 
         // 初始化阈值
-        protected virtual void InitThesold()
+        protected virtual bool InitThesold()
         {
             int allSize = HeartContext.ThesoldSec * HeartContext.F;
             if (ecgQueue.Count >= allSize)
@@ -566,64 +573,30 @@ namespace BtHeart.Controller
                 }
                 double m = HilbertMaxs.Median();
                 Th = m * 0.7;
-                Console.WriteLine("Th=" + Th);
-                //HilbertMaxs.Clear();
 
-                List<int> posR = new List<int>(); // 保存R波位置
-                for (int i = 0; i < diffList.Count; i++)
-                {
-                    if(diffList[i] > Th)
-                    {
-                        // 符合阈值附近开辟80ms的窗口寻找R波点,即极大值点
-                        int delta = (int)(0.08 * HeartContext.F);
-                        int endIndex = i+delta;
-                        endIndex = endIndex < diffList.Count ? endIndex : diffList.Count;
-                        for (int j = i+1;j < endIndex-1;j++)
-                        {
-                            if(diffList[j]-diffList[j-1] > 0 && diffList[j+1] - diffList[j] < 0)
-                            {
-                                posR.Add(j);
-                                //跳过200ms不应期
-                                j += (int)(HeartContext.RefractorySec * HeartContext.F); 
-                                i = j;
-                            }
-                        }
-                    }
-                }
-                for(int i = 1; i < posR.Count;i++)
-                {
-                    RRIntervals.EnqueueEx(posR[i] - posR[i - 1]);
-                }
-
-                // 确定RR间期和R波幅度
-                if (RRIntervals.Count > 0)
-                {
-                    RR = RRIntervals.Average();
-                    Console.WriteLine(RR.ToString());
-                    if (RR != 0)
-                    {
-                        var rr = 60 * HeartContext.F / RR;
-                        NewRate = Convert.ToInt32(rr);
-                        State = RateState.Initialized;
-                    }
-                }
-                else // 如果RR间期无法确定，重新计算阈值
+                Slope(diffList);
+                var posR = Slope(diffList);
+                Review(diffList, posR);
+                CalcRR(posR);
+                CalcRate();
+                
+                if(!NewRate.HasValue) // 无法计算心率，重新计算阈值
                 {
                     Clear();
                     State = RateState.Uninitialized;
+                    HeartContext.ThesoldSec = 3; // 阈值重新计算的时间减少为3秒
                     Console.WriteLine("重新计算阈值");
                 }
-
-                HeartContext.ThesoldSec = 3;
                 diffList.Clear();
                 ecgList.Clear();
-                posR.Clear();
                 ecgQueue.RemoveRange(ecgCount);
+                return true;
             }
+            return false;
         }
 
-        // 计算心率
-        protected virtual bool CalcRate()
+        // 检测R波
+        protected virtual bool DetectRWave()
         {
             int allSize = HeartContext.AdjustSec * HeartContext.F;
             if (ecgQueue.Count >= allSize)
@@ -633,81 +606,11 @@ namespace BtHeart.Controller
                 int ecgCount = ecgList.Count;
                 var diffList = Diff(ecgList);
 
-                //Th = 0.7 * HilbertMaxs.Median();
-                Console.WriteLine("Th="+Th);
+                var posR = Slope(diffList);
+                Review(diffList, posR);
+                CalcRR(posR);
+                CalcRate();
 
-                List<int> posR = new List<int>(); // 保存R波位置
-                for (int i = 0; i < diffList.Count; i++)
-                {
-                    if (diffList[i] > Th)
-                    {
-                        // 符合阈值附近开辟80ms的窗口寻找R波点,即极大值点
-                        int delta = (int)(0.08 * HeartContext.F);
-                        int endIndex = i + delta;
-                        endIndex = endIndex < diffList.Count ? endIndex : diffList.Count;
-                        for (int j = i + 1; j < endIndex - 1; j++)
-                        {
-                            if (diffList[j] - diffList[j - 1] > 0 && diffList[j + 1] - diffList[j] < 0)
-                            {
-                                // 判断当前RR间隔是否超过平均间隔的1.66倍，可能存在漏检
-                                // 降低一半阈值，为了快速处理所以只回扫一遍
-                                if (posR.Count > 1 && j - posR.Last() > 1.66*RR)
-                                {
-                                    var tempTh = Th / 2;
-                                    int startIndex = posR.Last();
-                                    startIndex = startIndex >= 0 ? startIndex : 0;
-                                    for (int n = startIndex; n < i; n++)
-                                    {
-                                        if (diffList[n] > Th)
-                                        {
-                                            posR.Add(n);
-                                            n += (int)(HeartContext.RefractorySec * HeartContext.F); //跳过200ms不应期 
-                                            break;
-                                        }
-                                    }
-                                }
-                                posR.Add(j);
-                                // 更新阈值
-                                HilbertMaxs.EnqueueEx(diffList[j]);
-                                Th = 0.7 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
-
-                                //跳过200ms不应期
-                                j += (int)(0.2 * HeartContext.F); 
-                                i = j;
-                            }
-                        }
-                    }
-                }
-                for (int i = 1; i < posR.Count; i++)
-                {
-                    RRIntervals.EnqueueEx(posR[i] - posR[i - 1]);
-                }
-
-                if(posR.Count == 0 && RRIntervals.Count > 0)
-                {
-                    RRIntervals.Dequeue();
-                }
-                if (RRIntervals.Count == 0)
-                {
-                    NewRate = null;
-                }
-                //if (posR.Count == 1 && RR > 0)
-                //{
-                //    rr = 60 * HeartContext.F / RR;
-                //    NewRate = (int)(rr);
-                //}
-                else if (RRIntervals.Count >= 1)
-                {
-                    RR = RRIntervals.Average();
-                    Console.WriteLine(RR.ToString());
-                    if (RR == 0)
-                        NewRate = null;
-                    else
-                    {
-                        var rr = 60 * HeartContext.F / RR;
-                        NewRate = Convert.ToInt32(rr);
-                    }
-                }
                 ecgList.Clear();
                 ecgQueue.RemoveRange(ecgCount);
                 return true;
@@ -717,12 +620,123 @@ namespace BtHeart.Controller
             return false;
         }
 
+        // 斜率法判断Hilbert阈值
+        private List<int> Slope(List<double> diffList)
+        {
+            List<int> posR = new List<int>(); // 保存R波位置
+            for (int i = 0; i < diffList.Count; i++)
+            {
+                if (diffList[i] > Th)
+                {
+                    // 符合阈值附近开辟80ms的窗口寻找R波点,即极大值点
+                    int delta = (int)(0.08 * HeartContext.F);
+                    int endIndex = i + delta;
+                    endIndex = endIndex < diffList.Count ? endIndex : diffList.Count;
+                    for (int j = i + 1; j < endIndex - 1; j++)
+                    {
+                        if (diffList[j] - diffList[j - 1] > 0 && diffList[j + 1] - diffList[j] < 0)
+                        {
+                            posR.Add(j);
+                            // 更新阈值
+                            HilbertMaxs.EnqueueEx(diffList[j]);
+                            Th = 0.7 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
+                            //跳过200ms不应期
+                            j += (int)(HeartContext.RefractorySec * HeartContext.F);
+                            i = j;
+                        }
+                    }
+                }
+            }
+            return posR;
+        }
+
+        // 复查，检测R波漏检
+        private void Review(List<double> diffList,List<int> posR)
+        {
+            if (RR == 0)
+                return;
+
+            for (int i = 1; i < posR.Count;i++)
+            {
+                var rr = posR[i] - posR[i - 1];
+                // 判断当前RR间隔是否超过平均间隔的1.66倍，可能存在漏检
+                if (rr >= 1.66*RR)
+                {
+                    // 降低一半阈值，为了快速处理所以只回扫一遍
+                    Th /= 2;
+                    var tempDiffList = diffList.Skip(posR[i-1]).Take(rr).ToList();
+                    var leakrPos = Slope(tempDiffList);
+                    for (int j = 0; j < leakrPos.Count; j++)
+                        leakrPos[j] += posR[i - 1]; // 修正索引位置
+                    // 插入返回的漏检R波位置
+                    posR.InsertRange(i, leakrPos);
+                    continue;
+                }
+            }
+        }
+
+        // 计算RR间期
+        private void CalcRR(List<int> posR)
+        {
+            for (int i = 1; i < posR.Count; i++)
+            {
+                RRIntervals.EnqueueEx(posR[i] - posR[i - 1]);
+            }
+            if (posR.Count == 0 && RRIntervals.Count > 0)
+            {
+                RRIntervals.RemoveRange(2);
+            }
+        }
+
+        // 计算心率
+        private void CalcRate()
+        {
+            if (RRIntervals.Count == 0)
+            {
+                NewRate = null;
+            }
+            else
+            {
+                RR = RRIntervals.Average();
+                Console.WriteLine(RR.ToString());
+                if (RR == 0)
+                    NewRate = null;
+                else
+                {
+                    var rr = 60 * HeartContext.F / RR;
+                    NewRate = Convert.ToInt32(rr);
+                }
+            }
+        }
+
+        // 检测RR间期稳定性和Th范围
+
+        private void CheckRRTh()
+        {
+            if (Th > 0 && Th < 0.0000001)
+            {
+                HilbertMaxs.Clear();
+                NewRate = null;
+                Console.WriteLine("阈值超出范围");
+            }
+
+            // 计算RR间期的方差，方差越小说明稳定性越好
+            var variance = Statistics.Variance(RRIntervals);
+            if (variance > 15000) // 每个数相差太大的方差
+            {
+                RRIntervals.Clear();
+                NewRate = null;
+                Console.WriteLine("RR间期不稳定");
+            }
+        }
+
         // 检验心率计算
         private void CheckRate()
         {
             if (!NewRate.HasValue) // 本次和上次都未检测到心跳
             {
                 ErrorCnt++;
+                Console.WriteLine("未检测到心跳");
             }
             else
             {
@@ -733,6 +747,7 @@ namespace BtHeart.Controller
                     {
                         NewRate = (NewRate + LastRate) / 2;
                         WarningCnt++;
+                        Console.WriteLine("心率变化太快");
                     }
                     else if (Math.Abs(NewRate.Value - LastRate) < 5)
                     {
@@ -768,6 +783,7 @@ namespace BtHeart.Controller
         // 清空参数
         private void Clear()
         {
+            Console.WriteLine("心率计算状态重置");
             ecgQueue.Clear();
             RRIntervals.Clear();
             HilbertMaxs.Clear();
@@ -777,7 +793,7 @@ namespace BtHeart.Controller
             WarningCnt = 0;
             LastRate = -1;
             NewRate = null;
-            State = RateState.Jumped;
+            State = RateState.Uninitialized ;
         }
     }
 

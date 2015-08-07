@@ -29,6 +29,17 @@ namespace BtHeart.Controller
             }
         }
 
+        public static void RemoveRange<T>(this Queue<T> queue, int count)
+        {
+            int queueCount = queue.Count;
+            int minCount = Math.Min(queueCount, count);
+
+            for (int i = 0; i < minCount; i++)
+            {
+               queue.Dequeue();
+            }
+        }
+
         public static double Median(this IEnumerable<double> queue)
         {
             List<double> sortList = new List<double>(queue);
