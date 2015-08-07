@@ -310,8 +310,8 @@ namespace BtHeart.UI
             ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
             ChartHeart.ChartAreas[0].AxisX.Maximum = xSec; // 5s
             ChartHeart.ChartAreas[0].AxisX.IsStartedFromZero = true;
-            ChartHeart.ChartAreas[0].AxisY.Minimum = -0.5;
-            ChartHeart.ChartAreas[0].AxisY.Maximum = 0.5; // -2~2mv;
+            ChartHeart.ChartAreas[0].AxisY.Minimum = -1;
+            ChartHeart.ChartAreas[0].AxisY.Maximum = 1; // -2~2mv;
             ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
 
             ChartHeart.ChartAreas[0].AxisX.IsLabelAutoFit = true;

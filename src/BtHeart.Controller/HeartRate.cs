@@ -485,27 +485,29 @@ namespace BtHeart.Controller
             }
 
             // 再取10点平滑滤波
-            var zList = new List<double>();
-            for(int i = 9;i < x.Count;i++)
-            {
-                double z = (x[i - 9] + x[i - 8] + x[i - 7] + x[i - 6] +
-                    x[i - 5] + x[i - 4] + x[i - 3] + x[i - 2] + x[i - 1] + x[i]) / 10;
-                zList.Add(z);
-            }
-            // 非线性平方运算
-            zList.ForEach(z => z *= z);
+            //var zList = new List<double>();
+            //for(int i = 9;i < x.Count;i++)
+            //{
+            //    double z = (x[i - 9] + x[i - 8] + x[i - 7] + x[i - 6] +
+            //        x[i - 5] + x[i - 4] + x[i - 3] + x[i - 2] + x[i - 1] + x[i]) / 10;
+
+            //    // 非线性平方运算
+            //    z *= z;
+            //    zList.Add(z);
+            //}
 
             // Hilbert变换
             var hList = new List<double>();
-            var hilbert = Hilbert.MatlabHilbert(zList.ToArray());
+            var hilbert = Hilbert.MatlabHilbert(yList.ToArray());
             for (int i = 0; i < hilbert.Length;i++)
             {
                 var h = hilbert[i].Real * hilbert[i].Real +
                     hilbert[i].Imaginary * hilbert[i].Imaginary;
+
+                // 非线性平方运算
+                //h *= h;
                 hList.Add(h);
             }
-            // 非线性平方运算
-            hList.ForEach(h => h *= h);
 
             return hList;
         }
@@ -581,7 +583,8 @@ namespace BtHeart.Controller
                             if(diffList[j]-diffList[j-1] > 0 && diffList[j+1] - diffList[j] < 0)
                             {
                                 posR.Add(j);
-                                j += (int)(HeartContext.RefractorySec * HeartContext.F); //跳过200ms不应期
+                                //跳过200ms不应期
+                                j += (int)(HeartContext.RefractorySec * HeartContext.F); 
                                 i = j;
                             }
                         }
@@ -611,6 +614,7 @@ namespace BtHeart.Controller
                     Console.WriteLine("重新计算阈值");
                 }
 
+                HeartContext.ThesoldSec = 3;
                 diffList.Clear();
                 ecgList.Clear();
                 posR.Clear();
@@ -629,10 +633,7 @@ namespace BtHeart.Controller
                 int ecgCount = ecgList.Count;
                 var diffList = Diff(ecgList);
 
-                // 更新阈值
-                HilbertMaxs.EnqueueEx(diffList.Max());
-                //Th = 0.25 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
-                Th = 0.7 * HilbertMaxs.Median();
+                //Th = 0.7 * HilbertMaxs.Median();
                 Console.WriteLine("Th="+Th);
 
                 List<int> posR = new List<int>(); // 保存R波位置
@@ -648,7 +649,6 @@ namespace BtHeart.Controller
                         {
                             if (diffList[j] - diffList[j - 1] > 0 && diffList[j + 1] - diffList[j] < 0)
                             {
-                                RR = RRIntervals.Average(); // 平均RR间隔
                                 // 判断当前RR间隔是否超过平均间隔的1.66倍，可能存在漏检
                                 // 降低一半阈值，为了快速处理所以只回扫一遍
                                 if (posR.Count > 1 && j - posR.Last() > 1.66*RR)
@@ -667,7 +667,12 @@ namespace BtHeart.Controller
                                     }
                                 }
                                 posR.Add(j);
-                                j += (int)(0.2 * HeartContext.F); //跳过200ms不应期
+                                // 更新阈值
+                                HilbertMaxs.EnqueueEx(diffList[j]);
+                                Th = 0.7 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
+
+                                //跳过200ms不应期
+                                j += (int)(0.2 * HeartContext.F); 
                                 i = j;
                             }
                         }
@@ -678,6 +683,10 @@ namespace BtHeart.Controller
                     RRIntervals.EnqueueEx(posR[i] - posR[i - 1]);
                 }
 
+                if(posR.Count == 0 && RRIntervals.Count > 0)
+                {
+                    RRIntervals.Dequeue();
+                }
                 if (RRIntervals.Count == 0)
                 {
                     NewRate = null;
@@ -699,7 +708,6 @@ namespace BtHeart.Controller
                         NewRate = Convert.ToInt32(rr);
                     }
                 }
-
                 ecgList.Clear();
                 ecgQueue.RemoveRange(ecgCount);
                 return true;
@@ -751,32 +759,9 @@ namespace BtHeart.Controller
         // 检测错误次数
         private void CheckError()
         {
-            if (ErrorCnt >= 2 || WarningCnt >= 5)
+            if (ErrorCnt >= 2 || WarningCnt >= 3)
             {
                 State = RateState.Error;
-            }
-        }
-
-        // 修正阈值
-        private void CheckTh()
-        {
-            if (ErrorCnt >= 1)
-            {
-                if (!NewRate.HasValue)
-                {
-                    HeartContext.Th *= 2;
-                    HeartContext.Th = HeartContext.Th >= 16 ? 2 : HeartContext.Th;
-                }
-                else if (NewRate >= 240)
-                {
-                    HeartContext.Th += 2;
-                    HeartContext.Th = HeartContext.Th <= 2 ? 2 : HeartContext.Th;
-                }
-                else if (NewRate <= 30)
-                {
-                    HeartContext.Th -= 2;
-                    HeartContext.Th = HeartContext.Th >= 16 ? 2 : HeartContext.Th;
-                }
             }
         }
 
