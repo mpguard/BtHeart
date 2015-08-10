@@ -244,7 +244,7 @@ namespace BtHeart.Controller
             int allSize = HeartContext.AdjustSec*HeartContext.F;
             if (ecgQueue.Count >= allSize)
             {
-                //Console.WriteLine(((ecgQueue.Max() - ecgQueue.Min())/2).ToString());
+                Console.WriteLine("幅度："+((ecgQueue.Max() - ecgQueue.Min())/2).ToString());
                 var ecgList = ecgQueue.ToList();
                 int ecgCount = ecgList.Count;
                 List<int> posR = new List<int>(); // R值位置
@@ -580,16 +580,21 @@ namespace BtHeart.Controller
                 CalcRR(posR);
                 CalcRate();
                 
-                if(!NewRate.HasValue) // 无法计算心率，重新计算阈值
+                if(NewRate.HasValue)
+                {
+                    State = RateState.Initialized;
+                    Console.WriteLine("确定阈值");
+                }
+                else // 无法计算心率，重新计算阈值
                 {
                     Clear();
                     State = RateState.Uninitialized;
-                    HeartContext.ThesoldSec = 3; // 阈值重新计算的时间减少为3秒
                     Console.WriteLine("重新计算阈值");
                 }
                 diffList.Clear();
                 ecgList.Clear();
                 ecgQueue.RemoveRange(ecgCount);
+                HeartContext.ThesoldSec = 3; // 阈值重新计算的时间减少为3秒
                 return true;
             }
             return false;
@@ -601,7 +606,7 @@ namespace BtHeart.Controller
             int allSize = HeartContext.AdjustSec * HeartContext.F;
             if (ecgQueue.Count >= allSize)
             {
-                //Console.WriteLine(((ecgQueue.Max() - ecgQueue.Min())/2).ToString());
+                Console.WriteLine("幅度：" + ((ecgQueue.Max() - ecgQueue.Min())).ToString());
                 var ecgList = ecgQueue.ToList();
                 int ecgCount = ecgList.Count;
                 var diffList = Diff(ecgList);

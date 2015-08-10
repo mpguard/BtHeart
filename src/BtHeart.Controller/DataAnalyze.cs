@@ -96,6 +96,7 @@ namespace BtHeart.Controller
                             int low = (int)bl;
                             double hv = ((high << 8) + low) * 3.3 / 4095 - 1.5;
                             //double hv = (high << 8) + low;
+                            hv *= 2.5 ;
                             OnAnalyze(hv);
                         }
                     }
