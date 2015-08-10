@@ -61,6 +61,7 @@
             this.btnClearSend = new System.Windows.Forms.Button();
             this.btnRefreshPort = new System.Windows.Forms.Button();
             this.tpBLE数据 = new System.Windows.Forms.TabPage();
+            this.btnWavelet = new System.Windows.Forms.Button();
             this.btn滤波保存 = new System.Windows.Forms.Button();
             this.btn保存 = new System.Windows.Forms.Button();
             this.btn原始数据解析 = new System.Windows.Forms.Button();
@@ -76,7 +77,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rbFeedPaper = new System.Windows.Forms.RadioButton();
             this.rbRedraw = new System.Windows.Forms.RadioButton();
-            this.btnWavelet = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
             this.gbSet.SuspendLayout();
             this.tp蓝牙原始数据.SuspendLayout();
             this.gbReceive.SuspendLayout();
@@ -431,6 +432,17 @@
             this.tpBLE数据.Text = "串口数据";
             this.tpBLE数据.UseVisualStyleBackColor = true;
             // 
+            // btnWavelet
+            // 
+            this.btnWavelet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnWavelet.Location = new System.Drawing.Point(650, 604);
+            this.btnWavelet.Name = "btnWavelet";
+            this.btnWavelet.Size = new System.Drawing.Size(97, 29);
+            this.btnWavelet.TabIndex = 8;
+            this.btnWavelet.Text = "小波变换测试";
+            this.btnWavelet.UseVisualStyleBackColor = true;
+            this.btnWavelet.Click += new System.EventHandler(this.btnWavelet_Click);
+            // 
             // btn滤波保存
             // 
             this.btn滤波保存.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -601,22 +613,23 @@
             this.rbRedraw.UseVisualStyleBackColor = true;
             this.rbRedraw.CheckedChanged += new System.EventHandler(this.rbRedraw_CheckedChanged);
             // 
-            // btnWavelet
+            // label9
             // 
-            this.btnWavelet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnWavelet.Location = new System.Drawing.Point(650, 604);
-            this.btnWavelet.Name = "btnWavelet";
-            this.btnWavelet.Size = new System.Drawing.Size(97, 29);
-            this.btnWavelet.TabIndex = 8;
-            this.btnWavelet.Text = "小波变换测试";
-            this.btnWavelet.UseVisualStyleBackColor = true;
-            this.btnWavelet.Click += new System.EventHandler(this.btnWavelet_Click);
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label9.Location = new System.Drawing.Point(9, 611);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(136, 19);
+            this.label9.TabIndex = 16;
+            this.label9.Text = "增益：10mm/mv";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 681);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lblRate);
             this.Controls.Add(this.label8);
@@ -707,6 +720,7 @@
         private System.Windows.Forms.RadioButton rbFeedPaper;
         private System.Windows.Forms.RadioButton rbRedraw;
         private System.Windows.Forms.Button btnWavelet;
+        private System.Windows.Forms.Label label9;
     }
 }
 

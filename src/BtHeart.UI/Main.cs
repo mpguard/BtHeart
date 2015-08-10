@@ -311,22 +311,24 @@ namespace BtHeart.UI
             ChartHeart.ChartAreas[0].AxisX.Minimum = 0;
             ChartHeart.ChartAreas[0].AxisX.Maximum = xSec; // 3s
             ChartHeart.ChartAreas[0].AxisX.IsStartedFromZero = true;
-            //ChartHeart.ChartAreas[0].AxisY.Minimum = -1;
-            //ChartHeart.ChartAreas[0].AxisY.Maximum = 1; // -2~2mv;
-            //ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
+            ChartHeart.ChartAreas[0].AxisY.Minimum = -2;
+            ChartHeart.ChartAreas[0].AxisY.Maximum = 2; // -2~2mv;
+            ChartHeart.ChartAreas[0].AxisY.IsStartedFromZero = true;
 
             ChartHeart.ChartAreas[0].AxisX.IsLabelAutoFit = true;
             ChartHeart.ChartAreas[0].AxisY.IsLabelAutoFit = true;
             
             ChartHeart.ChartAreas[0].AxisX.MajorTickMark.Interval = 0.2;
             ChartHeart.ChartAreas[0].AxisX.MinorTickMark.Interval = 0.04;
-            ChartHeart.ChartAreas[0].AxisY.MajorTickMark.Interval = 0.2;
-            ChartHeart.ChartAreas[0].AxisY.MinorTickMark.Interval = 0.04;
+            ChartHeart.ChartAreas[0].AxisY.MajorTickMark.Interval = 0.5;
+            ChartHeart.ChartAreas[0].AxisY.MinorTickMark.Interval = 0.1;
 
+            ChartHeart.ChartAreas[0].AxisX.Interval = 0.2;
             ChartHeart.ChartAreas[0].AxisX.MajorGrid.Interval = 0.2;
             ChartHeart.ChartAreas[0].AxisX.MinorGrid.Interval = 0.04;
-            //ChartHeart.ChartAreas[0].AxisY.MajorGrid.Interval = 0.5;
-            //ChartHeart.ChartAreas[0].AxisY.MinorGrid.Interval = 0.1;
+            ChartHeart.ChartAreas[0].AxisY.Interval = 0.5;
+            ChartHeart.ChartAreas[0].AxisY.MajorGrid.Interval = 0.5;
+            ChartHeart.ChartAreas[0].AxisY.MinorGrid.Interval = 0.1;
 
             rbRedraw.Checked = true;
         }

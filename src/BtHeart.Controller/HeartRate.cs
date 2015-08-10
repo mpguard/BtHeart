@@ -644,7 +644,7 @@ namespace BtHeart.Controller
                             posR.Add(j);
                             // 更新阈值
                             HilbertMaxs.EnqueueEx(diffList[j]);
-                            Th = 0.7 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
+                            Th = 0.8 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
                             //跳过200ms不应期
                             j += (int)(HeartContext.RefractorySec * HeartContext.F);
                             i = j;

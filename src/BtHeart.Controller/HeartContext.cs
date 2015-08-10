@@ -71,7 +71,7 @@ namespace BtHeart.Controller
                 //BandStopFilter,
                 //HanFilter,
                 //IirFilter,
-                //MedianFilter,
+                MedianFilter,
             };
         }
 
