@@ -77,16 +77,17 @@ namespace BtHeart.Controller
 
         private void worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            while(!worker.CancellationPending)
+            // 500Hz就是2ms一个数据点，0.04s，40ms需要20个数据点的走纸速度
+            while (!worker.CancellationPending)
             {
-                if (analyzedQueue.Count >= 12)
+                if (analyzedQueue.Count >= 20)
                 {
-                    var data = analyzedQueue.Take(12).ToArray();
+                    var data = analyzedQueue.Take(20).ToArray();
                     EcgPacket packet = new EcgPacket() { Data = data };
                     OnProcess(packet);
-                    analyzedQueue.RemoveRange(12);
+                    analyzedQueue.RemoveRange(20);
                 }
-                Thread.Sleep(2);
+                Thread.Sleep(40); 
             }
         }
  
@@ -94,7 +95,7 @@ namespace BtHeart.Controller
         {
             var pdata = ProcessData(data);
             analyzedQueue.Enqueue(pdata);
-            ecgQueue.Enqueue(pdata);
+            //ecgQueue.Enqueue(pdata);
         }
 
         private void Pump_Received(byte[] buffer)

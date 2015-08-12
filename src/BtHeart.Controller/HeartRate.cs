@@ -644,7 +644,7 @@ namespace BtHeart.Controller
                             posR.Add(j);
                             // 更新阈值
                             HilbertMaxs.EnqueueEx(diffList[j]);
-                            Th = 0.8 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
+                            Th = 0.7 * (0.7 * HilbertMaxs.Median() + 0.3 * Th);
                             //跳过200ms不应期
                             j += (int)(HeartContext.RefractorySec * HeartContext.F);
                             i = j;
@@ -727,7 +727,7 @@ namespace BtHeart.Controller
 
             // 计算RR间期的方差，方差越小说明稳定性越好
             var variance = Statistics.Variance(RRIntervals);
-            if (variance > 15000) // 每个数相差太大的方差
+            if (variance > 30000) // 每个数相差太大的方差
             {
                 RRIntervals.Clear();
                 NewRate = null;

@@ -20,6 +20,10 @@ namespace BtHeart.UI
         private HeartContext HeartContext;
 
         #region 心电图纸定义
+        // 心电标准(默认增益)是10mm/mv
+        private static int StdGain = 10;
+        // 增益调节的放大/缩小倍数
+        private static int Gain = 10;
         // 采样点间距
         private static double delta = 0.002;
         // 横向代表时间，大格间距,0.2s
@@ -51,13 +55,18 @@ namespace BtHeart.UI
             config.AppSettings.Settings["baudRate"].Value = cmbBaundrate.Text.Trim();
             config.AppSettings.Settings["dataBits"].Value = cmbDataBit.Text.Trim();
             config.Save();
-            ConfigurationManager.RefreshSection("AppSettings");
+            ConfigurationManager.RefreshSection("appSettings");
         }
 
         private void HeartContext_Processed(EcgPacket ecgPacket)
         {
             if (!this.IsHandleCreated)
                 return;
+
+            // 增益调节
+            for (int i = 0; i < ecgPacket.Data.Length; i++)
+                ecgPacket.Data[i] = ecgPacket.Data[i] * Gain / StdGain;
+
             this.BeginInvoke(new Action(() =>
             {
                 if (rbRedraw.Checked)
@@ -124,6 +133,9 @@ namespace BtHeart.UI
             cmbEncoding.SelectedItem = Encoding.Default.WebName;
             chkHEXShow.Checked = true;
             chkFilter.Checked = true;
+
+            cmbGain.DataSource = new Int32[] {5,10,20,25 };
+            cmbGain.SelectedItem = 10;
         }
 
         private void btnRefreshPort_Click(object sender, EventArgs e)
@@ -149,6 +161,7 @@ namespace BtHeart.UI
                     ResetChartInfo();
                     HeartContext.Start();
                     btnConnect.Text = "关闭串口";
+                    Gain = (int)cmbGain.SelectedItem;
                 }
                 else
                 {

@@ -78,6 +78,8 @@
             this.rbFeedPaper = new System.Windows.Forms.RadioButton();
             this.rbRedraw = new System.Windows.Forms.RadioButton();
             this.label9 = new System.Windows.Forms.Label();
+            this.cmbGain = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.gbSet.SuspendLayout();
             this.tp蓝牙原始数据.SuspendLayout();
             this.gbReceive.SuspendLayout();
@@ -441,6 +443,7 @@
             this.btnWavelet.TabIndex = 8;
             this.btnWavelet.Text = "小波变换测试";
             this.btnWavelet.UseVisualStyleBackColor = true;
+            this.btnWavelet.Visible = false;
             this.btnWavelet.Click += new System.EventHandler(this.btnWavelet_Click);
             // 
             // btn滤波保存
@@ -452,6 +455,7 @@
             this.btn滤波保存.TabIndex = 7;
             this.btn滤波保存.Text = "滤波数据保存";
             this.btn滤波保存.UseVisualStyleBackColor = true;
+            this.btn滤波保存.Visible = false;
             this.btn滤波保存.Click += new System.EventHandler(this.btn滤波保存_Click);
             // 
             // btn保存
@@ -463,6 +467,7 @@
             this.btn保存.TabIndex = 6;
             this.btn保存.Text = "数据保存";
             this.btn保存.UseVisualStyleBackColor = true;
+            this.btn保存.Visible = false;
             this.btn保存.Click += new System.EventHandler(this.btn保存_Click);
             // 
             // btn原始数据解析
@@ -485,6 +490,7 @@
             this.btn滤波解析.TabIndex = 4;
             this.btn滤波解析.Text = "开源滤波数据解析";
             this.btn滤波解析.UseVisualStyleBackColor = true;
+            this.btn滤波解析.Visible = false;
             this.btn滤波解析.Click += new System.EventHandler(this.btn滤波解析_Click);
             // 
             // txtBleText
@@ -560,7 +566,7 @@
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(9, 575);
+            this.label8.Location = new System.Drawing.Point(8, 614);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(66, 19);
             this.label8.TabIndex = 13;
@@ -571,7 +577,7 @@
             this.lblRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblRate.AutoSize = true;
             this.lblRate.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.lblRate.Location = new System.Drawing.Point(71, 575);
+            this.lblRate.Location = new System.Drawing.Point(70, 614);
             this.lblRate.Name = "lblRate";
             this.lblRate.Size = new System.Drawing.Size(39, 19);
             this.lblRate.TabIndex = 14;
@@ -618,17 +624,40 @@
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label9.Location = new System.Drawing.Point(9, 611);
+            this.label9.Location = new System.Drawing.Point(8, 572);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(136, 19);
+            this.label9.Size = new System.Drawing.Size(66, 19);
             this.label9.TabIndex = 16;
-            this.label9.Text = "增益：10mm/mv";
+            this.label9.Text = "增益：";
+            // 
+            // cmbGain
+            // 
+            this.cmbGain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cmbGain.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.cmbGain.FormattingEnabled = true;
+            this.cmbGain.Location = new System.Drawing.Point(62, 571);
+            this.cmbGain.Name = "cmbGain";
+            this.cmbGain.Size = new System.Drawing.Size(48, 24);
+            this.cmbGain.TabIndex = 17;
+            // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label10.Location = new System.Drawing.Point(113, 572);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(59, 19);
+            this.label10.TabIndex = 18;
+            this.label10.Text = "mm/mv";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 681);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.cmbGain);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lblRate);
@@ -721,6 +750,8 @@
         private System.Windows.Forms.RadioButton rbRedraw;
         private System.Windows.Forms.Button btnWavelet;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox cmbGain;
+        private System.Windows.Forms.Label label10;
     }
 }
 
